@@ -44,6 +44,7 @@ class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegist
   }
 
   def success: String = {
+    put("logined", SecurityContext.getSession.isDefined)
     forward()
   }
 
