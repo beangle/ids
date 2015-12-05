@@ -1,10 +1,9 @@
 package org.beangle.ids.cas.web.action
 
+import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.security.context.SecurityContext
 import org.beangle.webmvc.api.action.ActionSupport
 import org.beangle.webmvc.api.annotation.{ action, ignore, mapping, param }
-import org.beangle.commons.lang.Strings
 
 /**
  * @author chaostone

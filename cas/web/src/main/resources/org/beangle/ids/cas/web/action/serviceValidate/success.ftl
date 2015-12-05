@@ -1,11 +1,14 @@
 [#ftl attributes={"content_type","text/xml; charset=utf-8"}/]
 <?xml version="1.0" encoding="utf-8"?>
 [#assign principal=result.ticket.principal/]
-<sso:serviceResponse>
-  <sso:authenticationSuccess>
-    <sso:user>${principal.name}</sso:user>
-      <sso:attributes>
-        <sso:attribute name="userName" type="String" value="${principal.userName}"/>
-      </sso:attributes>
-  </sso:authenticationSuccess>
-</sso:serviceResponse>
+<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+  <cas:authenticationSuccess>
+    <cas:user>${principal.name}</cas:user>
+      <cas:attributes>
+        <cas:userName>${principal.userName}</cas:userName>
+      [#list principal.details?keys as key]
+        <cas:${key}>${principal.details[key]}</cas:${key}>
+      [/#list]
+      </cas:attributes>
+  </cas:authenticationSuccess>
+</cas:serviceResponse>
