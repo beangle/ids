@@ -12,7 +12,7 @@ import org.beangle.commons.cache.CacheManager
  */
 class CachedTicketRegistry(cacheManager: CacheManager) extends TicketRegistry {
   var cacheName = "cas_tickets"
-  val tickets = cacheManager.getCache[String, DefaultServiceTicket](cacheName)
+  val tickets = cacheManager.getCache(cacheName, classOf[String], classOf[DefaultServiceTicket])
 
   override def validateTicket(t: String, service: String): Result = {
     if (null == t || null == service) return Result(null, "-1", "ticket and service parameters are required.")
