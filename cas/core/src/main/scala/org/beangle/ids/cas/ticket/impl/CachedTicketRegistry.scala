@@ -44,10 +44,7 @@ class CachedTicketRegistry(cacheManager: CacheManager) extends TicketRegistry {
   }
 
   override def putTicket(ticket: String, service: String, session: Session): Unit = {
-    val p = new UserPrincipal(session.principal.getName, session.principal.userName)
+    val p = new UserPrincipal(session.principal.getName, session.principal.description)
     tickets.put(ticket, new DefaultServiceTicket(service, p))
   }
 }
-
-
-
