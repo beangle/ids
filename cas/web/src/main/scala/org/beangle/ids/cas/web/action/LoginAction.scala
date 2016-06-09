@@ -18,6 +18,7 @@
  */
 package org.beangle.ids.cas.web.action
 
+import org.beangle.commons.cache.CacheManager
 import org.beangle.ids.cas.id.ServiceTicketIdGenerator
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.DefaultCasSessionIdPolicy
@@ -27,14 +28,19 @@ import org.beangle.security.mgt.SecurityManager
 import org.beangle.security.session.Session
 import org.beangle.security.web.authc.WebClient
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
-import org.beangle.webmvc.api.annotation.{ mapping, param }
+import org.beangle.webmvc.api.annotation.{ ignore, mapping, param }
 
 /**
  * @author chaostone
  */
-class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegistry) extends ActionSupport with ServletSupport {
+class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegistry, sessionServiceCacheManager: CacheManager) extends ActionSupport with ServletSupport {
+
+  val sessionServiceCache = sessionServiceCacheManager.getCache("session_service", classOf[String], classOf[java.util.List[String]])
+
   var casSessionIdPolicy: DefaultCasSessionIdPolicy = _
+
   var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
+
   @mapping(value = "")
   def index(@param(value = "service", required = false) service: String): Any = {
     SecurityContext.getSession match {
@@ -71,6 +77,18 @@ class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegist
       redirect("success", null)
     } else {
       val ticket = generateTicket(service, session)
+      val sessionId = session.id
+
+      val rs = sessionServiceCache.get(sessionId) match {
+        case Some(services) =>
+          services.add(service)
+          services
+        case None =>
+          val newServices = new java.util.ArrayList[String]
+          newServices.add(service)
+          newServices
+      }
+      sessionServiceCache.put(sessionId, rs)
       redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
     }
   }

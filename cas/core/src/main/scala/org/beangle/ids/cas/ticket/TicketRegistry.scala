@@ -26,5 +26,5 @@ import org.beangle.security.session.Session
 trait TicketRegistry {
   def validateTicket(ticket: String, service: String): Result
 
-  def putTicket(ticket: String, service: String, session: Session)
+  def putTicket(ticket: String, service: String, session: Session): Unit
 }
