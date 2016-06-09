@@ -23,24 +23,49 @@ import org.beangle.security.context.SecurityContext
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
+import org.beangle.commons.cache.CacheManager
+
 /**
  * @author chaostone
  */
-class LogoutAction extends ActionSupport with ServletSupport {
+class LogoutAction(sessionServiceCacheManager: CacheManager) extends ActionSupport with ServletSupport {
   var casSessionIdPolicy: DefaultCasSessionIdPolicy = _
+
+  val sessionServiceCache = sessionServiceCacheManager.getCache("session_service", classOf[String], classOf[java.util.List[String]])
+
   @mapping(value = "")
   def index(): View = {
     SecurityContext.getSession match {
       case Some(session) =>
-        session.stop()
-        val s = request.getSession(false)
-        if (null != s) s.invalidate()
-        get("service") match {
-          case Some(service) => redirect(to(service), null)
-          case None          => toLogin()
+        val services = sessionServiceCache.get(session.id)
+        if (!services.isEmpty) {
+          get("service") match {
+            case Some(s) => redirect(to(classOf[LogoutAction], "service", "&service=" + s), null)
+            case None    => redirect(to(classOf[LogoutAction], "service"), null)
+          }
+        } else {
+          session.stop()
+          val s = request.getSession(false)
+          if (null != s) s.invalidate()
+          get("service") match {
+            case Some(service) => redirect(to(service), null)
+            case None          => toLogin()
+          }
         }
       case None => toLogin()
     }
+  }
+
+  def service(): String = {
+    put("services", new java.util.ArrayList[String])
+    SecurityContext.getSession match {
+      case Some(session) =>
+        sessionServiceCache.get(session.id) foreach (services => put("services", services))
+        sessionServiceCache.evict(session.id)
+        session.stop()
+      case None =>
+    }
+    forward()
   }
 
   private def toLogin(): View = {
