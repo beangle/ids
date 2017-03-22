@@ -12,9 +12,9 @@
   <version>0.0.6-SNAPSHOT</version>
 
   <properties>
-    <beangle.commons.version>4.6.0</beangle.commons.version>
-    <beangle.security.version>4.0.17</beangle.security.version>
-    <beangle.data.version>4.4.2</beangle.data.version>
+    <beangle.commons.version>4.6.2</beangle.commons.version>
+    <beangle.security.version>4.0.18</beangle.security.version>
+    <beangle.data.version>4.4.3</beangle.data.version>
     <beangle.webmvc.version>0.3.10</beangle.webmvc.version>
   </properties>
 
