@@ -19,25 +19,24 @@
 package org.beangle.ids.cas.web.action
 
 import org.beangle.commons.cache.CacheManager
+import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.id.ServiceTicketIdGenerator
 import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.ids.cas.web.helper.DefaultCasSessionIdPolicy
 import org.beangle.security.authc.{ AuthenticationException, UsernamePasswordToken }
 import org.beangle.security.context.SecurityContext
-import org.beangle.security.mgt.SecurityManager
 import org.beangle.security.session.Session
-import org.beangle.security.web.authc.WebClient
+import org.beangle.security.web.WebSecurityManager
+import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ ignore, mapping, param }
 
 /**
  * @author chaostone
  */
-class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegistry, sessionServiceCacheManager: CacheManager) extends ActionSupport with ServletSupport {
+class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry, sessionServiceCacheManager: CacheManager)
+    extends ActionSupport with ServletSupport {
 
   val sessionServiceCache = sessionServiceCacheManager.getCache("session_service", classOf[String], classOf[java.util.List[String]])
-
-  var casSessionIdPolicy: DefaultCasSessionIdPolicy = _
 
   var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
 
@@ -53,14 +52,13 @@ class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegist
           forward()
         } else {
           val token = new UsernamePasswordToken(u.get, p.get)
-          val key = casSessionIdPolicy.newSessionId(request, response)
           try {
-            val session = secuirtyManager.login(key, token, WebClient.get(request))
+            val session = secuirtyManager.login(request, response, token)
             SecurityContext.session = session
             forwardService(service, session)
           } catch {
             case e: AuthenticationException =>
-              put("error", "用户名和密码错误");
+              put("error", "用户名和密码错误")
               forward()
           }
         }
@@ -76,20 +74,56 @@ class LoginAction(secuirtyManager: SecurityManager, ticketRegistry: TicketRegist
     if (null == service) {
       redirect("success", null)
     } else {
-      val ticket = generateTicket(service, session)
-      val sessionId = session.id
-
-      val rs = sessionServiceCache.get(sessionId) match {
-        case Some(services) =>
-          services.add(service)
-          services
-        case None =>
-          val newServices = new java.util.ArrayList[String]
-          newServices.add(service)
-          newServices
+      if (isMember(service)) {
+        redirect(to(service + (if (service.contains("?")) "&" else "?")), null)
+      } else {
+        val ticket = generateTicket(service, session)
+        val sessionId = session.id
+        val rs = sessionServiceCache.get(sessionId) match {
+          case Some(services) =>
+            services.add(service)
+            services
+          case None =>
+            val newServices = new java.util.ArrayList[String]
+            newServices.add(service)
+            newServices
+        }
+        sessionServiceCache.put(sessionId, rs)
+        redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
       }
-      sessionServiceCache.put(sessionId, rs)
-      redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
+    }
+  }
+
+  private def isMember(service: String): Boolean = {
+    val scnameAttr = "scname="
+    val sessionCookieNameIndex = service.indexOf(scnameAttr)
+    if (-1 == sessionCookieNameIndex) return false
+    val scnameChars = service.substring(sessionCookieNameIndex + scnameAttr.length).toCharArray
+    var i = 0
+    var end = scnameChars.length
+    while (i < scnameChars.length) {
+      if (!Character.isLetterOrDigit(scnameChars(i))) {
+        end = i
+        i = scnameChars.length
+      }
+      i += 1
+    }
+    val sessionIdPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
+    val scname = new String(scnameChars, 0, end)
+    if (sessionIdPolicy.name == scname) {
+      val serviceDomain = Strings.substringBetween(service, "://", "/")
+      val myDomain = if (null == sessionIdPolicy.domain) {
+        request.getServerName
+      } else {
+        if (request.getServerName.contains(sessionIdPolicy.domain)) {
+          sessionIdPolicy.domain
+        } else {
+          request.getServerName
+        }
+      }
+      serviceDomain.contains(myDomain)
+    } else {
+      false
     }
   }
 
