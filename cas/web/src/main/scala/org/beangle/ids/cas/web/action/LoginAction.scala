@@ -76,7 +76,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       redirect("success", null)
     } else {
       if (isMember(service)) {
-        redirect(to(service + (if (service.contains("?")) "&" else "?")), null)
+        redirect(to(service), null)
       } else {
         val ticket = generateTicket(service, session)
         val sessionId = session.id
@@ -100,9 +100,14 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     if (scname.isEmpty) return false
     val sessionIdPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
     if (sessionIdPolicy.name == scname.get) {
-      val serviceDomain = Strings.substringBetween(service, "://", "/")
+      val startIdx = service.indexOf("://") + 3
+      var portIdx = service.indexOf(':', startIdx)
+      if (portIdx < 0) portIdx = service.length
+      val slashIdx = service.indexOf('/', startIdx)
+      val serviceDomain = service.substring(startIdx, Math.min(portIdx, slashIdx))
+      val requestDomain = request.getServerName
       val myDomain = if (null == sessionIdPolicy.domain) {
-        request.getServerName
+        requestDomain
       } else {
         if (request.getServerName.contains(sessionIdPolicy.domain)) {
           sessionIdPolicy.domain
