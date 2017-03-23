@@ -49,7 +49,11 @@ class LogoutAction(secuirtyManager: WebSecurityManager, sessionServiceCacheManag
             case None          => toLogin()
           }
         }
-      case None => toLogin()
+      case None =>
+        get("service") match {
+          case Some(service) => redirect(to(service), null)
+          case None          => toLogin()
+        }
     }
   }
 

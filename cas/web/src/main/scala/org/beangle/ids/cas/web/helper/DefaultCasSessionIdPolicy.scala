@@ -27,10 +27,10 @@ import org.beangle.security.web.session.CookieSessionIdPolicy
 /**
  * @author chaostone
  */
-class DefaultCasSessionIdPolicy(cookieName: String = "TGC") extends CookieSessionIdPolicy(cookieName) {
+class DefaultCasSessionIdPolicy(name: String = "TGC") extends CookieSessionIdPolicy(name) {
   private val sessionIdGenerator = new DefaultIdGenerator("TGT-", 35)
 
-  protected def newId(request: HttpServletRequest): String = {
+  protected override def generateId(request: HttpServletRequest): String = {
     sessionIdGenerator.nextid()
   }
 

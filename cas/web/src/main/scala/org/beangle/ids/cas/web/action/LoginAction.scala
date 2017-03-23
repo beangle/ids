@@ -29,6 +29,7 @@ import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ ignore, mapping, param }
+import org.beangle.webmvc.api.context.Params
 
 /**
  * @author chaostone
@@ -95,22 +96,10 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   private def isMember(service: String): Boolean = {
-    val scnameAttr = "scname="
-    val sessionCookieNameIndex = service.indexOf(scnameAttr)
-    if (-1 == sessionCookieNameIndex) return false
-    val scnameChars = service.substring(sessionCookieNameIndex + scnameAttr.length).toCharArray
-    var i = 0
-    var end = scnameChars.length
-    while (i < scnameChars.length) {
-      if (!Character.isLetterOrDigit(scnameChars(i))) {
-        end = i
-        i = scnameChars.length
-      }
-      i += 1
-    }
+    val scname = Params.get("scname")
+    if (scname.isEmpty) return false
     val sessionIdPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
-    val scname = new String(scnameChars, 0, end)
-    if (sessionIdPolicy.name == scname) {
+    if (sessionIdPolicy.name == scname.get) {
       val serviceDomain = Strings.substringBetween(service, "://", "/")
       val myDomain = if (null == sessionIdPolicy.domain) {
         request.getServerName
