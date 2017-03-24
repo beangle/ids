@@ -19,16 +19,15 @@
 package org.beangle.ids.cas.web.action
 
 import org.beangle.commons.cache.CacheManager
-import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.id.ServiceTicketIdGenerator
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.authc.{ AuthenticationException, UsernamePasswordToken }
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
 import org.beangle.security.web.WebSecurityManager
-import org.beangle.security.web.session.CookieSessionIdPolicy
+import org.beangle.security.web.session.{ CookieSessionIdPolicy, SessionIdPolicy }
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
-import org.beangle.webmvc.api.annotation.{ ignore, mapping, param }
+import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.context.Params
 
 /**
@@ -96,10 +95,10 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   private def isMember(service: String): Boolean = {
-    val scname = Params.get("scname")
-    if (scname.isEmpty) return false
+    val sidName = Params.get(SessionIdPolicy.SessionIdName)
+    if (sidName.isEmpty) return false
     val sessionIdPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
-    if (sessionIdPolicy.name == scname.get) {
+    if (sessionIdPolicy.name == sidName.get) {
       val startIdx = service.indexOf("://") + 3
       var portIdx = service.indexOf(':', startIdx)
       if (portIdx < 0) portIdx = service.length
