@@ -18,18 +18,17 @@
  */
 package org.beangle.ids.cas.web.action
 
-import org.beangle.ids.cas.web.helper.DefaultCasSessionIdPolicy
 import org.beangle.security.context.SecurityContext
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
 import org.beangle.commons.cache.CacheManager
+import org.beangle.security.web.WebSecurityManager
 
 /**
  * @author chaostone
  */
-class LogoutAction(sessionServiceCacheManager: CacheManager) extends ActionSupport with ServletSupport {
-  var casSessionIdPolicy: DefaultCasSessionIdPolicy = _
+class LogoutAction(secuirtyManager: WebSecurityManager, sessionServiceCacheManager: CacheManager) extends ActionSupport with ServletSupport {
 
   val sessionServiceCache = sessionServiceCacheManager.getCache("session_service", classOf[String], classOf[java.util.List[String]])
 
@@ -44,15 +43,17 @@ class LogoutAction(sessionServiceCacheManager: CacheManager) extends ActionSuppo
             case None    => redirect(to(classOf[LogoutAction], "service"), null)
           }
         } else {
-          session.stop()
-          val s = request.getSession(false)
-          if (null != s) s.invalidate()
+          secuirtyManager.logout(request, response, session)
           get("service") match {
             case Some(service) => redirect(to(service), null)
             case None          => toLogin()
           }
         }
-      case None => toLogin()
+      case None =>
+        get("service") match {
+          case Some(service) => redirect(to(service), null)
+          case None          => toLogin()
+        }
     }
   }
 
@@ -62,14 +63,13 @@ class LogoutAction(sessionServiceCacheManager: CacheManager) extends ActionSuppo
       case Some(session) =>
         sessionServiceCache.get(session.id) foreach (services => put("services", services))
         sessionServiceCache.evict(session.id)
-        session.stop()
+        secuirtyManager.logout(request, response, session)
       case None =>
     }
     forward()
   }
 
   private def toLogin(): View = {
-    casSessionIdPolicy.delSessionId(request, response)
     redirect(to(classOf[LoginAction], "index"), null)
   }
 
