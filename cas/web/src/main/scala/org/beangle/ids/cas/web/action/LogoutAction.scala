@@ -22,7 +22,7 @@ import org.beangle.security.context.SecurityContext
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
-import org.beangle.commons.cache.CacheManager
+import org.beangle.cache.CacheManager
 import org.beangle.security.web.WebSecurityManager
 
 /**

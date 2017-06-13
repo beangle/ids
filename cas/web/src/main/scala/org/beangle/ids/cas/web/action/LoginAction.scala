@@ -18,7 +18,7 @@
  */
 package org.beangle.ids.cas.web.action
 
-import org.beangle.commons.cache.CacheManager
+import org.beangle.cache.CacheManager
 import org.beangle.ids.cas.id.ServiceTicketIdGenerator
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.authc.{ AuthenticationException, UsernamePasswordToken }

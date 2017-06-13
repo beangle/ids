@@ -23,7 +23,7 @@ import org.beangle.ids.cas.ticket.{ Result, Ticket, TicketRegistry }
 import org.beangle.security.session.Session
 import org.beangle.ids.cas.ticket.DefaultServiceTicket
 import org.beangle.ids.cas.ticket.UserPrincipal
-import org.beangle.commons.cache.CacheManager
+import org.beangle.cache.CacheManager
 
 /**
  * @author chaostone
