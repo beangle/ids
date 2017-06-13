@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.beangle</groupId>
     <artifactId>beangle-scala</artifactId>
-    <version>24.0</version>
+    <version>24.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.beangle.ids</groupId>
@@ -12,10 +12,11 @@
   <version>0.0.7-SNAPSHOT</version>
 
   <properties>
-    <beangle.commons.version>4.6.2</beangle.commons.version>
-    <beangle.security.version>4.0.18</beangle.security.version>
-    <beangle.data.version>4.4.3</beangle.data.version>
-    <beangle.webmvc.version>0.3.10</beangle.webmvc.version>
+    <beangle.commons.version>5.0.0.M3</beangle.commons.version>
+    <beangle.security.version>4.0.19</beangle.security.version>
+    <beangle.data.version>5.0.0.M2</beangle.data.version>
+    <beangle.webmvc.version>0.3.11</beangle.webmvc.version>
+    <beangle.cache.version>0.0.5</beangle.cache.version>
   </properties>
 
   <modules>
@@ -30,9 +31,9 @@
         <version>${beangle.commons.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.beangle.commons</groupId>
-        <artifactId>beangle-commons-cache_2.12</artifactId>
-        <version>${beangle.commons.version}</version>
+        <groupId>org.beangle.cache</groupId>
+        <artifactId>beangle-cache-api_2.12</artifactId>
+        <version>${beangle.cache.version}</version>
       </dependency>
       <dependency>
         <groupId>org.beangle.commons</groupId>
