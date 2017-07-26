@@ -57,7 +57,7 @@ class LogoutAction(secuirtyManager: WebSecurityManager, sessionServiceCacheManag
     }
   }
 
-  def service(): String = {
+  def service(): View = {
     put("services", new java.util.ArrayList[String])
     SecurityContext.getSession match {
       case Some(session) =>

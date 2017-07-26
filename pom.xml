@@ -12,11 +12,11 @@
   <version>0.0.8-SNAPSHOT</version>
 
   <properties>
-    <beangle.commons.version>5.0.0.M3</beangle.commons.version>
-    <beangle.security.version>4.0.19</beangle.security.version>
-    <beangle.data.version>5.0.0.M2</beangle.data.version>
-    <beangle.webmvc.version>0.3.11</beangle.webmvc.version>
-    <beangle.cache.version>0.0.5</beangle.cache.version>
+    <beangle.commons.version>5.0.0.M4</beangle.commons.version>
+    <beangle.data.version>5.0.0.M4</beangle.data.version>
+    <beangle.security.version>4.0.21</beangle.security.version>
+    <beangle.webmvc.version>0.3.12</beangle.webmvc.version>
+    <beangle.cache.version>0.0.6</beangle.cache.version>
   </properties>
 
   <modules>

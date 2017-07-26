@@ -29,6 +29,7 @@ import org.beangle.security.web.session.{ CookieSessionIdPolicy, SessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.context.Params
+import org.beangle.webmvc.api.view.View
 
 /**
  * @author chaostone
@@ -41,7 +42,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
 
   @mapping(value = "")
-  def index(@param(value = "service", required = false) service: String): Any = {
+  def index(@param(value = "service", required = false) service: String): View = {
     SecurityContext.getSession match {
       case Some(session) =>
         forwardService(service, session)
@@ -65,12 +66,12 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     }
   }
 
-  def success: String = {
+  def success: View = {
     put("logined", SecurityContext.getSession.isDefined)
     forward()
   }
 
-  private def forwardService(service: String, session: Session): Any = {
+  private def forwardService(service: String, session: Session): View = {
     if (null == service) {
       redirect("success", null)
     } else {
