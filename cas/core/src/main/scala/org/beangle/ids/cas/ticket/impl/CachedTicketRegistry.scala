@@ -18,12 +18,9 @@
  */
 package org.beangle.ids.cas.ticket.impl
 
-import java.security.Principal
-import org.beangle.ids.cas.ticket.{ Result, Ticket, TicketRegistry }
-import org.beangle.security.session.Session
-import org.beangle.ids.cas.ticket.DefaultServiceTicket
-import org.beangle.ids.cas.ticket.UserPrincipal
 import org.beangle.cache.CacheManager
+import org.beangle.ids.cas.ticket.{ DefaultServiceTicket, Result, TicketRegistry }
+import org.beangle.security.session.Session
 
 /**
  * @author chaostone
@@ -44,7 +41,6 @@ class CachedTicketRegistry(cacheManager: CacheManager) extends TicketRegistry {
   }
 
   override def putTicket(ticket: String, service: String, session: Session): Unit = {
-    val p = new UserPrincipal(session.principal.getName)
-    tickets.put(ticket, new DefaultServiceTicket(service, p))
+    tickets.put(ticket, new DefaultServiceTicket(service, session.principal.getName))
   }
 }
