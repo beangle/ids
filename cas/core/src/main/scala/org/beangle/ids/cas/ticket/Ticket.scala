@@ -29,7 +29,7 @@ trait Ticket extends Serializable {
 
 class DefaultServiceTicket(val service: String, val principal: Principal) extends Ticket
 
-class UserPrincipal(name: String, val userName: String) extends Principal with Serializable {
+class UserPrincipal(name: String) extends Principal with Serializable {
 
   override def getName: String = {
     name

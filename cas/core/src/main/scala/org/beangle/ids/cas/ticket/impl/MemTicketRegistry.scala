@@ -40,7 +40,7 @@ class MemTicketRegistry extends TicketRegistry {
   }
 
   override def putTicket(ticket: String, service: String, session: Session): Unit = {
-    val p = new UserPrincipal(session.principal.getName, session.principal.description)
+    val p = new UserPrincipal(session.principal.getName)
     tickets.put(ticket, new DefaultServiceTicket(service, p))
   }
 }
