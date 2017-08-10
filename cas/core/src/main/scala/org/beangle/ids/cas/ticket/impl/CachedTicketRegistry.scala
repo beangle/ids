@@ -18,17 +18,17 @@
  */
 package org.beangle.ids.cas.ticket.impl
 
-import org.beangle.cache.CacheManager
+import org.beangle.ids.cas.cache.CasCacheService
 import org.beangle.ids.cas.ticket.{ DefaultServiceTicket, Result, TicketRegistry }
 import org.beangle.security.session.Session
 
 /**
  * @author chaostone
  */
-class CachedTicketRegistry(cacheManager: CacheManager) extends TicketRegistry {
-  var cacheName = "cas_tickets"
-  val tickets = cacheManager.getCache(cacheName, classOf[String], classOf[DefaultServiceTicket])
+class CachedTicketRegistry(cacheService: CasCacheService) extends TicketRegistry {
 
+  val tickets = cacheService.getTicketCache()
+  
   override def validateTicket(t: String, service: String): Result = {
     if (null == t || null == service) return Result(null, "-1", "ticket and service parameters are required.")
     tickets.get(t) match {

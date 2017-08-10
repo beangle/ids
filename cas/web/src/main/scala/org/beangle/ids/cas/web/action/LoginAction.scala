@@ -30,14 +30,16 @@ import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.context.Params
 import org.beangle.webmvc.api.view.View
+import org.beangle.ids.cas.cache.CasCacheService
+import org.beangle.ids.cas.service.Services
 
 /**
  * @author chaostone
  */
-class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry, sessionServiceCacheManager: CacheManager)
+class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry, casCacheService: CasCacheService)
     extends ActionSupport with ServletSupport {
 
-  val sessionServiceCache = sessionServiceCacheManager.getCache("session_service", classOf[String], classOf[java.util.List[String]])
+  val serviceCache = casCacheService.getServiceCache()
 
   var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
 
@@ -80,16 +82,16 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       } else {
         val ticket = generateTicket(service, session)
         val sessionId = session.id
-        val rs = sessionServiceCache.get(sessionId) match {
+        val rs = serviceCache.get(sessionId) match {
           case Some(services) =>
             services.add(service)
             services
           case None =>
-            val newServices = new java.util.ArrayList[String]
+            val newServices = new Services()
             newServices.add(service)
             newServices
         }
-        sessionServiceCache.put(sessionId, rs)
+        serviceCache.put(sessionId, rs)
         redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
       }
     }
