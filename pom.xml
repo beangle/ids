@@ -36,6 +36,11 @@
         <version>${beangle.cache.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.beangle.cache</groupId>
+        <artifactId>beangle-cache-redis_2.12</artifactId>
+        <version>${beangle.cache.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.beangle.commons</groupId>
         <artifactId>beangle-commons-text_2.12</artifactId>
         <version>${beangle.commons.version}</version>

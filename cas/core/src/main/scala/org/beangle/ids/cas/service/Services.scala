@@ -5,10 +5,10 @@ import java.io.ObjectInput
 import java.io.ObjectOutput
 
 class Services extends Externalizable {
-  var services: List[String] = List.empty
+  var services: Set[String] = Set.empty
 
   def add(service: String): Unit = {
-    this.services ::= service
+    this.services += service
   }
 
   def writeExternal(out: ObjectOutput) {

@@ -18,13 +18,17 @@
  */
 package org.beangle.ids.cas.ticket
 
+import org.beangle.ids.cas.service.Services
 import org.beangle.security.session.Session
 
 /**
  * @author chaostone
  */
 trait TicketRegistry {
-  def validateTicket(ticket: String, service: String): Result
 
-  def putTicket(ticket: String, service: String, session: Session): Unit
+  def validate(ticket: String, service: String): Result
+
+  def generate(session: Session, service: String): String
+
+  def getServices(session: Session): Option[Services]
 }

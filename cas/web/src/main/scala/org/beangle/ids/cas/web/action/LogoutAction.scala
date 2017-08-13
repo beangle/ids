@@ -24,20 +24,19 @@ import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
 import org.beangle.cache.CacheManager
 import org.beangle.security.web.WebSecurityManager
-import org.beangle.ids.cas.cache.CasCacheService
+import org.beangle.ids.cas.ticket.TicketRegistry
 
 /**
  * @author chaostone
  */
-class LogoutAction(secuirtyManager: WebSecurityManager, cacheService: CasCacheService) extends ActionSupport with ServletSupport {
-
-  val serviceCache = cacheService.getServiceCache()
+class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
+    extends ActionSupport with ServletSupport {
 
   @mapping(value = "")
   def index(): View = {
     SecurityContext.getSession match {
       case Some(session) =>
-        val services = serviceCache.get(session.id)
+        val services = ticketRegistry.getServices(session)
         if (!services.isEmpty) {
           get("service") match {
             case Some(s) => redirect(to(classOf[LogoutAction], "service", "&service=" + s), null)
@@ -62,8 +61,8 @@ class LogoutAction(secuirtyManager: WebSecurityManager, cacheService: CasCacheSe
     put("services", new java.util.ArrayList[String])
     SecurityContext.getSession match {
       case Some(session) =>
-        serviceCache.get(session.id) foreach (services => put("services", services.services))
-        serviceCache.evict(session.id)
+        val services = ticketRegistry.getServices(session)
+        services foreach (services => put("services", services.services))
         secuirtyManager.logout(request, response, session)
       case None =>
     }

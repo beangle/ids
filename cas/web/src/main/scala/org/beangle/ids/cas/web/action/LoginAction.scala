@@ -18,8 +18,6 @@
  */
 package org.beangle.ids.cas.web.action
 
-import org.beangle.cache.CacheManager
-import org.beangle.ids.cas.id.ServiceTicketIdGenerator
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.authc.{ AuthenticationException, UsernamePasswordToken }
 import org.beangle.security.context.SecurityContext
@@ -30,18 +28,12 @@ import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.context.Params
 import org.beangle.webmvc.api.view.View
-import org.beangle.ids.cas.cache.CasCacheService
-import org.beangle.ids.cas.service.Services
 
 /**
  * @author chaostone
  */
-class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry, casCacheService: CasCacheService)
+class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
     extends ActionSupport with ServletSupport {
-
-  val serviceCache = casCacheService.getServiceCache()
-
-  var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
 
   @mapping(value = "")
   def index(@param(value = "service", required = false) service: String): View = {
@@ -80,18 +72,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       if (isMember(service)) {
         redirect(to(service), null)
       } else {
-        val ticket = generateTicket(service, session)
-        val sessionId = session.id
-        val rs = serviceCache.get(sessionId) match {
-          case Some(services) =>
-            services.add(service)
-            services
-          case None =>
-            val newServices = new Services()
-            newServices.add(service)
-            newServices
-        }
-        serviceCache.put(sessionId, rs)
+        val ticket = ticketRegistry.generate(session, service)
         redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
       }
     }
@@ -122,11 +103,4 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       false
     }
   }
-
-  private def generateTicket(service: String, session: Session): String = {
-    val id = serviceTicketIdGenerator.nextid()
-    ticketRegistry.putTicket(id, service, session)
-    id
-  }
-
 }
