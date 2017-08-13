@@ -5,12 +5,14 @@
   <cas:authenticationSuccess>
     <cas:user>${principal.name}</cas:user>
       <cas:attributes>
-        <cas:userName>${principal.userName}</cas:userName>
-      [#if principal.details??]
-      [#list principal.details?keys as key]
+        <cas:userName>${principal.description}</cas:userName>
+        [#if principal.authorities??]<cas:authorities>${principal.authorities}</cas:authorities>[/#if]
+        [#if principal.permissions??]<cas:permissions>${principal.permissions}</cas:permissions>[/#if]
+        [#if principal.details??]
+        [#list principal.details?keys as key]
         <cas:${key}>${principal.details[key]}</cas:${key}>
-      [/#list]
-      [/#if]
+        [/#list]
+        [/#if]
       </cas:attributes>
   </cas:authenticationSuccess>
 </cas:serviceResponse>

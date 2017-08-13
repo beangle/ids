@@ -9,7 +9,7 @@
   <artifactId>beangle-ids-parent_2.12</artifactId>
   <packaging>pom</packaging>
   <name>Beangle Identifiy System Parent</name>
-  <version>0.0.9-SNAPSHOT</version>
+  <version>0.0.9</version>
 
   <properties>
     <beangle.commons.version>5.0.0.M5</beangle.commons.version>
@@ -33,6 +33,11 @@
       <dependency>
         <groupId>org.beangle.cache</groupId>
         <artifactId>beangle-cache-api_2.12</artifactId>
+        <version>${beangle.cache.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.beangle.cache</groupId>
+        <artifactId>beangle-cache-redis_2.12</artifactId>
         <version>${beangle.cache.version}</version>
       </dependency>
       <dependency>
@@ -68,6 +73,11 @@
       <dependency>
         <groupId>org.beangle.webmvc</groupId>
         <artifactId>beangle-webmvc-spring-plugin_2.12</artifactId>
+        <version>${beangle.webmvc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.beangle.webmvc</groupId>
+        <artifactId>beangle-webmvc-stream-plugin_2.12</artifactId>
         <version>${beangle.webmvc.version}</version>
       </dependency>
       <dependency>
