@@ -24,15 +24,14 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   @response
   @mapping("{id}/access")
   def access(id: String): View = {
-    secuirtyManager.registry.get(id) match {
+    val registry = secuirtyManager.registry
+    registry.get(id) match {
       case Some(s) =>
         val accessAt = get("time") match {
           case Some(time) => Instant.ofEpochSecond(time.toLong)
           case None       => Instant.now
         }
-        if (accessAt.isAfter(s.lastAccessAt)) {
-          s.lastAccessAt = accessAt
-        }
+        registry.access(s.id, accessAt)
         ActionContext.current.response.getWriter.print("ok")
         Status.Ok
       case None => notfound(id)
