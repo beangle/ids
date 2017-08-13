@@ -32,7 +32,7 @@ class ServiceValidateAction(ticketRegistry: TicketRegistry) extends ActionSuppor
 
   @mapping("")
   def index(@param(value = "service", required = false) service: String, @param(value = "ticket", required = false) ticket: String): View = {
-    val result = ticketRegistry.validateTicket(ticket, service)
+    val result = ticketRegistry.validate(ticket, service)
     put("result", result)
     forward(if (Strings.isEmpty(result.code)) "success" else "failure")
   }

@@ -18,20 +18,45 @@
  */
 package org.beangle.ids.cas.ticket
 
-import java.security.Principal
+import java.io.{ Externalizable, ObjectInput, ObjectOutput }
+
+import org.beangle.security.authc.Account
+import org.beangle.security.session.Session
+import org.beangle.security.authc.DefaultAccount
 
 /**
  * @author chaostone
  */
-trait Ticket extends Serializable {
-  def principal: Principal
+trait Ticket extends Externalizable {
+  def sessionId: String
 }
 
-class DefaultServiceTicket(val service: String, val principal: Principal) extends Ticket
+trait ServiceTicket extends Ticket {
+  def service: String
+}
 
-class UserPrincipal(name: String, val userName: String) extends Principal with Serializable {
+class DefaultServiceTicket extends ServiceTicket {
+  var sessionId: String = _
+  var principal: DefaultAccount = _
+  var service: String = _
 
-  override def getName: String = {
-    name
+  def this(session: Session, service: String) {
+    this()
+    this.sessionId = session.id
+    this.principal = session.principal.asInstanceOf[DefaultAccount]
+    this.service = service
+  }
+
+  def writeExternal(out: ObjectOutput) {
+    out.writeObject(sessionId)
+    principal.writeExternal(out)
+    out.writeObject(service)
+  }
+
+  def readExternal(in: ObjectInput) {
+    sessionId = in.readObject.asInstanceOf[String]
+    principal = new DefaultAccount
+    principal.readExternal(in)
+    service = in.readObject.asInstanceOf[String]
   }
 }
