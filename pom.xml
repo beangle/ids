@@ -16,7 +16,7 @@
     <beangle.data.version>5.0.0.M6</beangle.data.version>
     <beangle.security.version>4.1.1</beangle.security.version>
     <beangle.webmvc.version>0.3.14</beangle.webmvc.version>
-    <beangle.cache.version>0.0.9</beangle.cache.version>
+    <beangle.cache.version>0.0.10</beangle.cache.version>
   </properties>
 
   <modules>
