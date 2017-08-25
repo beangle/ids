@@ -15,6 +15,9 @@ class DefaultTicketCacheService extends TicketCacheService {
 
   def this(pool: JedisPool) {
     this()
+    DefaultBinarySerializer.registerClass(classOf[Services])
+    DefaultBinarySerializer.registerClass(classOf[DefaultServiceTicket])
+
     val cacheManager = new RedisCacheManager(pool, DefaultBinarySerializer, true)
     cacheManager.ttl = 60
     tickets = cacheManager.getCache("cas_tickets", classOf[String], classOf[DefaultServiceTicket])
