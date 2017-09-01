@@ -31,6 +31,11 @@
         <version>${beangle.commons.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.beangle.data</groupId>
+        <artifactId>beangle-data-jdbc_2.12</artifactId>
+        <version>${beangle.data.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.beangle.cache</groupId>
         <artifactId>beangle-cache-api_2.12</artifactId>
         <version>${beangle.cache.version}</version>
