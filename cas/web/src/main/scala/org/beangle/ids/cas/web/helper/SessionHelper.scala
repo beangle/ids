@@ -18,7 +18,7 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import org.beangle.security.web.session.SessionIdPolicy
+import org.beangle.security.web.session.{ SessionIdPolicy, SessionIdReader }
 import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.context.Params
 import javax.servlet.http.HttpServletRequest
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest
 object SessionHelper {
 
   def isMember(request: HttpServletRequest, service: String, sIdPolicy: SessionIdPolicy): Boolean = {
-    val sidName = Params.get(SessionIdPolicy.SessionIdName)
+    val sidName = Params.get(SessionIdReader.SessionIdName)
     if (sidName.isEmpty) return false
     val sessionIdPolicy = sIdPolicy.asInstanceOf[CookieSessionIdPolicy]
     if (sessionIdPolicy.name == sidName.get) {

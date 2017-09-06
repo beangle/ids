@@ -65,6 +65,12 @@ class DefaultTicketRegistry(cacheService: TicketCacheService)
     services.get(session.id)
   }
 
+  override def evictServices(session: Session): Option[Services] = {
+    val rs = services.get(session.id)
+    rs foreach { s => services.evict(session.id) }
+    rs
+  }
+
   private def updateServiceCache(st: ServiceTicket): Unit = {
     val rs = services.get(st.sessionId) match {
       case Some(services) =>
