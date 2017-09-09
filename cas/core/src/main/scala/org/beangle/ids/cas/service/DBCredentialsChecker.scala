@@ -9,7 +9,7 @@ import javax.sql.DataSource
 /**
  * @author chaostone
  */
-class DaoCredentialsChecker(dataSource: DataSource, passwordSql: String) extends CredentialsChecker {
+class DBCredentialsChecker(dataSource: DataSource, passwordSql: String) extends CredentialsChecker {
   private val executor = new JdbcExecutor(dataSource)
 
   override def check(principal: Any, credential: Any): Boolean = {

@@ -25,6 +25,8 @@ import org.beangle.webmvc.api.view.View
 import org.beangle.cache.CacheManager
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.ids.cas.ticket.TicketRegistry
+import org.beangle.security.session.Session
+import org.beangle.ids.cas.service.Services
 
 /**
  * @author chaostone
@@ -36,18 +38,16 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
   def index(): View = {
     SecurityContext.getSession match {
       case Some(session) =>
-        val services = ticketRegistry.getServices(session)
-        if (!services.isEmpty) {
-          get("service") match {
-            case Some(s) => redirect(to(classOf[LogoutAction], "service", "&service=" + s), null)
-            case None    => redirect(to(classOf[LogoutAction], "service"), null)
-          }
-        } else {
-          secuirtyManager.logout(request, response, session)
-          get("service") match {
-            case Some(service) => redirect(to(service), null)
-            case None          => toLogin()
-          }
+        ticketRegistry.evictServices(session) match {
+          case Some(services) =>
+            put("services", services.services)
+            forward("service")
+          case None =>
+            secuirtyManager.logout(request, response, session)
+            get("service") match {
+              case Some(service) => redirect(to(service), null)
+              case None => toLogin()
+            }
         }
       case None =>
         get("service") match {
@@ -55,18 +55,6 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
           case None          => toLogin()
         }
     }
-  }
-
-  def service(): View = {
-    put("services", new java.util.ArrayList[String])
-    SecurityContext.getSession match {
-      case Some(session) =>
-        val services = ticketRegistry.getServices(session)
-        services foreach (services => put("services", services.services))
-        secuirtyManager.logout(request, response, session)
-      case None =>
-    }
-    forward()
   }
 
   private def toLogin(): View = {
