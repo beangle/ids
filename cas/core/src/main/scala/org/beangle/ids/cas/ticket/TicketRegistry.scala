@@ -31,4 +31,6 @@ trait TicketRegistry {
   def generate(session: Session, service: String): String
 
   def getServices(session: Session): Option[Services]
+
+  def evictServices(session: Session): Option[Services]
 }

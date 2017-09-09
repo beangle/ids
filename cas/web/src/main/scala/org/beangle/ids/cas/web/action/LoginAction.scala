@@ -28,6 +28,7 @@ import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.context.Params
 import org.beangle.webmvc.api.view.View
+import org.beangle.ids.cas.web.helper.SessionHelper
 
 /**
  * @author chaostone
@@ -69,38 +70,12 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     if (null == service) {
       redirect("success", null)
     } else {
-      if (isMember(service)) {
+      if (SessionHelper.isMember(request, service, secuirtyManager.sessionIdPolicy)) {
         redirect(to(service), null)
       } else {
         val ticket = ticketRegistry.generate(session, service)
         redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
       }
-    }
-  }
-
-  private def isMember(service: String): Boolean = {
-    val sidName = Params.get(SessionIdPolicy.SessionIdName)
-    if (sidName.isEmpty) return false
-    val sessionIdPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
-    if (sessionIdPolicy.name == sidName.get) {
-      val startIdx = service.indexOf("://") + 3
-      var portIdx = service.indexOf(':', startIdx)
-      if (portIdx < 0) portIdx = service.length
-      val slashIdx = service.indexOf('/', startIdx)
-      val serviceDomain = service.substring(startIdx, Math.min(portIdx, slashIdx))
-      val requestDomain = request.getServerName
-      val myDomain = if (null == sessionIdPolicy.domain) {
-        requestDomain
-      } else {
-        if (request.getServerName.contains(sessionIdPolicy.domain)) {
-          sessionIdPolicy.domain
-        } else {
-          request.getServerName
-        }
-      }
-      serviceDomain.contains(myDomain)
-    } else {
-      false
     }
   }
 }

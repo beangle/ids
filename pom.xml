@@ -9,12 +9,12 @@
   <artifactId>beangle-ids-parent_2.12</artifactId>
   <packaging>pom</packaging>
   <name>Beangle Identifiy System Parent</name>
-  <version>0.0.11</version>
+  <version>0.0.12</version>
 
   <properties>
     <beangle.commons.version>5.0.0.M6</beangle.commons.version>
     <beangle.data.version>5.0.0.M6</beangle.data.version>
-    <beangle.security.version>4.1.1</beangle.security.version>
+    <beangle.security.version>4.1.2</beangle.security.version>
     <beangle.webmvc.version>0.3.14</beangle.webmvc.version>
     <beangle.cache.version>0.0.10</beangle.cache.version>
   </properties>
@@ -29,6 +29,11 @@
         <groupId>org.beangle.commons</groupId>
         <artifactId>beangle-commons-core_2.12</artifactId>
         <version>${beangle.commons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.beangle.data</groupId>
+        <artifactId>beangle-data-jdbc_2.12</artifactId>
+        <version>${beangle.data.version}</version>
       </dependency>
       <dependency>
         <groupId>org.beangle.cache</groupId>
