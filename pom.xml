@@ -9,7 +9,7 @@
   <artifactId>beangle-ids-parent_2.12</artifactId>
   <packaging>pom</packaging>
   <name>Beangle Identifiy System Parent</name>
-  <version>0.0.14-SNAPSHOT</version>
+  <version>0.0.14</version>
 
   <properties>
     <beangle.commons.version>5.0.0</beangle.commons.version>
