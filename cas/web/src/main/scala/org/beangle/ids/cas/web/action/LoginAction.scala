@@ -55,7 +55,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
           try {
             val req = request
             val session = secuirtyManager.login(req, response, token)
-            SecurityContext.set(securityContextBuilder.build(req))
+            SecurityContext.set(securityContextBuilder.build(req, Some(session)))
             forwardService(service, session)
           } catch {
             case e: AuthenticationException =>
