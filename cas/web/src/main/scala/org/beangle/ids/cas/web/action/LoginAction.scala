@@ -29,16 +29,20 @@ import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.context.Params
 import org.beangle.webmvc.api.view.View
 import org.beangle.ids.cas.web.helper.SessionHelper
+import org.beangle.security.Securities
+import org.beangle.security.web.access.SecurityContextBuilder
 
 /**
  * @author chaostone
  */
 class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
-    extends ActionSupport with ServletSupport {
+  extends ActionSupport with ServletSupport {
+
+  var securityContextBuilder: SecurityContextBuilder = _
 
   @mapping(value = "")
   def index(@param(value = "service", required = false) service: String): View = {
-    SecurityContext.getSession match {
+    Securities.session match {
       case Some(session) =>
         forwardService(service, session)
       case None =>
@@ -49,8 +53,9 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         } else {
           val token = new UsernamePasswordToken(u.get, p.get)
           try {
-            val session = secuirtyManager.login(request, response, token)
-            SecurityContext.session = session
+            val req = request
+            val session = secuirtyManager.login(req, response, token)
+            SecurityContext.set(securityContextBuilder.build(req))
             forwardService(service, session)
           } catch {
             case e: AuthenticationException =>
@@ -62,7 +67,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   def success: View = {
-    put("logined", SecurityContext.getSession.isDefined)
+    put("logined", Securities.session.isDefined)
     forward()
   }
 

@@ -27,6 +27,7 @@ import org.beangle.security.web.WebSecurityManager
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.session.Session
 import org.beangle.ids.cas.service.Services
+import org.beangle.security.Securities
 
 /**
  * @author chaostone
@@ -36,7 +37,7 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
 
   @mapping(value = "")
   def index(): View = {
-    SecurityContext.getSession match {
+    Securities.session match {
       case Some(session) =>
         ticketRegistry.evictServices(session) match {
           case Some(services) =>
