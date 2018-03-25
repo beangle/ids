@@ -27,7 +27,7 @@ import org.beangle.webmvc.api.view.View
 
 import javax.sql.DataSource
 import org.beangle.commons.collection.Order
-import org.beangle.security.session.SessionInfo
+import org.beangle.ids.cas.model.SessionInfo
 
 class SessionsAction(ds: DataSource) extends ActionSupport {
   val jdbcExecutor = new JdbcExecutor(ds)
