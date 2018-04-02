@@ -25,30 +25,26 @@ import javax.servlet.http.HttpServletRequest
 
 object SessionHelper {
 
-  def isMember(request: HttpServletRequest, service: String, sIdPolicy: SessionIdPolicy): Boolean = {
-    val sidName = Params.get(SessionIdReader.SessionIdName)
-    if (sidName.isEmpty) return false
-    val sessionIdPolicy = sIdPolicy.asInstanceOf[CookieSessionIdPolicy]
-    if (sessionIdPolicy.name == sidName.get) {
-      val startIdx = service.indexOf("://") + 3
-      var portIdx = service.indexOf(':', startIdx)
-      if (portIdx < 0) portIdx = service.length
-      val slashIdx = service.indexOf('/', startIdx)
-      val serviceDomain = service.substring(startIdx, Math.min(portIdx, slashIdx))
-      val requestDomain = request.getServerName
-      val myDomain = if (null == sessionIdPolicy.domain) {
-        requestDomain
-      } else {
-        if (request.getServerName.contains(sessionIdPolicy.domain)) {
-          sessionIdPolicy.domain
-        } else {
-          request.getServerName
-        }
-      }
-      serviceDomain.contains(myDomain)
-    } else {
-      false
+  def isMember(request: HttpServletRequest, service: String, sIdPolicy: CookieSessionIdPolicy): Boolean = {
+    Params.get(SessionIdReader.SessionIdName) match {
+      case None    => false
+      case Some(n) => sIdPolicy.name == n
     }
+  }
+
+  def isSameDomain(request: HttpServletRequest, service: String, sessionIdPolicy: CookieSessionIdPolicy): Boolean = {
+    val startIdx = service.indexOf("://") + 3
+    var portIdx = service.indexOf(':', startIdx)
+    if (portIdx < 0) portIdx = service.length
+    val slashIdx = service.indexOf('/', startIdx)
+    val serviceDomain = service.substring(startIdx, Math.min(portIdx, slashIdx))
+    val myDomain =
+      if (null == sessionIdPolicy.domain) {
+        request.getServerName
+      } else {
+        sessionIdPolicy.domain
+      }
+    serviceDomain.contains(myDomain)
   }
 
 }

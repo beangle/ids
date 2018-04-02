@@ -75,8 +75,16 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     if (null == service) {
       redirect("success", null)
     } else {
-      if (SessionHelper.isMember(request, service, secuirtyManager.sessionIdPolicy)) {
-        redirect(to(service), null)
+      val idPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
+      val isMember = SessionHelper.isMember(request, service, idPolicy)
+      if (isMember) {
+        if (SessionHelper.isSameDomain(request, service, idPolicy)) {
+          redirect(to(service), null)
+        } else {
+          val serviceWithSid =
+            service + (if (service.contains("&")) "&" else "?") + idPolicy.name + "=" + idPolicy.getId(request)
+          redirect(to(serviceWithSid), null)
+        }
       } else {
         val ticket = ticketRegistry.generate(session, service)
         redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
