@@ -9,12 +9,12 @@
   <artifactId>beangle-ids-parent_2.12</artifactId>
   <packaging>pom</packaging>
   <name>Beangle Identifiy System Parent</name>
-  <version>0.0.16-SNAPSHOT</version>
+  <version>0.0.16</version>
 
   <properties>
     <beangle.commons.version>5.1.0.M2</beangle.commons.version>
     <beangle.data.version>5.0.2</beangle.data.version>
-    <beangle.security.version>4.2.0</beangle.security.version>
+    <beangle.security.version>4.2.1-SNAPSHOT</beangle.security.version>
     <beangle.webmvc.version>0.3.16</beangle.webmvc.version>
     <beangle.cache.version>0.0.12</beangle.cache.version>
   </properties>
