@@ -82,7 +82,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
           redirect(to(service), null)
         } else {
           val serviceWithSid =
-            service + (if (service.contains("&")) "&" else "?") + idPolicy.name + "=" + session.id
+            service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
           redirect(to(serviceWithSid), null)
         }
       } else {
