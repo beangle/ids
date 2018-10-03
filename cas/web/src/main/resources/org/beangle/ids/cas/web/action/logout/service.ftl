@@ -10,7 +10,7 @@
     <meta http-equiv="expires" content="0"/>
   </head>
   <body>
-    正在退出...
+    正在退出业务系统...
     [#list services  as service]
       <iframe src="${service}[#if service?contains('?')]&[#else]?[/#if]logoutRequest=1" style="width:1px;height:1px;display:none"></iframe>
     [/#list]
