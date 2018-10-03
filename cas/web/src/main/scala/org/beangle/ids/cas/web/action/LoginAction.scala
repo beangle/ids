@@ -18,6 +18,8 @@
  */
 package org.beangle.ids.cas.web.action
 
+import org.beangle.commons.codec.binary.Aes
+import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.SessionHelper
 import org.beangle.security.Securities
@@ -30,7 +32,6 @@ import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.view.View
-
 
 /**
  * @author chaostone
@@ -48,8 +49,16 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     (classOf[DisabledException] -> "账户被禁用"),
     (classOf[CredentialsExpiredException] -> "密码过期"))
 
+  private def loginKey: String = {
+    val serverName = request.getServerName
+    if (serverName.length >= 16) {
+      serverName.substring(0, 16)
+    } else {
+      Strings.rightPad(serverName, 16, '0')
+    }
+  }
   @mapping(value = "")
-  def index(@param(value = "service", required = false) service: String): View = {
+  def index(@param(value = "service", required = false) service:String): View = {
     Securities.session match {
       case Some(session) =>
         forwardService(service, session)
@@ -59,7 +68,11 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (u.isEmpty || p.isEmpty) {
           forward()
         } else {
-          val token = new UsernamePasswordToken(u.get, p.get)
+          var password = p.get
+          if (password.startsWith("?")) {
+            password = Aes.ECB.decodeHex(loginKey, password.substring(1))
+          }
+          val token = new UsernamePasswordToken(u.get, password)
           try {
             val req = request
             val session = secuirtyManager.login(req, response, token)
