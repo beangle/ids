@@ -18,19 +18,20 @@
  */
 package org.beangle.ids.cas.web.action
 
+import org.beangle.commons.codec.binary.Aes
+import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.security.authc.{ AuthenticationException, UsernamePasswordToken }
+import org.beangle.ids.cas.web.helper.SessionHelper
+import org.beangle.security.Securities
+import org.beangle.security.authc.{ AccountExpiredException, AuthenticationException, BadCredentialsException, CredentialsExpiredException, DisabledException, LockedException, UsernameNotFoundException, UsernamePasswordToken }
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
 import org.beangle.security.web.WebSecurityManager
-import org.beangle.security.web.session.{ CookieSessionIdPolicy, SessionIdPolicy }
+import org.beangle.security.web.access.SecurityContextBuilder
+import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
-import org.beangle.webmvc.api.context.Params
 import org.beangle.webmvc.api.view.View
-import org.beangle.ids.cas.web.helper.SessionHelper
-import org.beangle.security.Securities
-import org.beangle.security.web.access.SecurityContextBuilder
 
 /**
  * @author chaostone
@@ -40,8 +41,24 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   var securityContextBuilder: SecurityContextBuilder = _
 
+  val messages: Map[Class[_], String] = Map(
+    (classOf[AccountExpiredException] -> "账户过期"),
+    (classOf[UsernameNotFoundException] -> "找不到该用户"),
+    (classOf[BadCredentialsException] -> "密码错误"),
+    (classOf[LockedException] -> "账户被锁定"),
+    (classOf[DisabledException] -> "账户被禁用"),
+    (classOf[CredentialsExpiredException] -> "密码过期"))
+
+  private def loginKey: String = {
+    val serverName = request.getServerName
+    if (serverName.length >= 16) {
+      serverName.substring(0, 16)
+    } else {
+      Strings.rightPad(serverName, 16, '0')
+    }
+  }
   @mapping(value = "")
-  def index(@param(value = "service", required = false) service: String): View = {
+  def index(@param(value = "service", required = false) service:String): View = {
     Securities.session match {
       case Some(session) =>
         forwardService(service, session)
@@ -51,7 +68,11 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (u.isEmpty || p.isEmpty) {
           forward()
         } else {
-          val token = new UsernamePasswordToken(u.get, p.get)
+          var password = p.get
+          if (password.startsWith("?")) {
+            password = Aes.ECB.decodeHex(loginKey, password.substring(1))
+          }
+          val token = new UsernamePasswordToken(u.get, password)
           try {
             val req = request
             val session = secuirtyManager.login(req, response, token)
@@ -59,7 +80,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
             forwardService(service, session)
           } catch {
             case e: AuthenticationException =>
-              put("error", "用户名和密码错误")
+              val msg = messages.get(e.getClass).getOrElse(e.getMessage())
+              put("error", msg)
               forward()
           }
         }
