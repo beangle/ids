@@ -32,12 +32,18 @@ import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
 import org.beangle.webmvc.api.annotation.{ mapping, param }
 import org.beangle.webmvc.api.view.View
-
+import org.beangle.ids.cas.web.helper.CsrfDefender
+import org.beangle.ids.cas.CasConfig
+import org.beangle.commons.bean.Initializing
 /**
  * @author chaostone
  */
 class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
-  extends ActionSupport with ServletSupport {
+  extends ActionSupport with ServletSupport with Initializing {
+
+  private var csrfDefender: CsrfDefender = _
+
+  var config: CasConfig = _
 
   var securityContextBuilder: SecurityContextBuilder = _
 
@@ -49,16 +55,12 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     (classOf[DisabledException] -> "账户被禁用"),
     (classOf[CredentialsExpiredException] -> "密码过期"))
 
-  private def loginKey: String = {
-    val serverName = request.getServerName
-    if (serverName.length >= 16) {
-      serverName.substring(0, 16)
-    } else {
-      Strings.rightPad(serverName, 16, '0')
-    }
+  override def init(): Unit = {
+    csrfDefender = new CsrfDefender(config.key, config.origin)
   }
+
   @mapping(value = "")
-  def index(@param(value = "service", required = false) service:String): View = {
+  def index(@param(value = "service", required = false) service: String): View = {
     Securities.session match {
       case Some(session) =>
         forwardService(service, session)
@@ -66,26 +68,36 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         val u = get("username")
         val p = get("password")
         if (u.isEmpty || p.isEmpty) {
-          forward()
+          toLoginForm()
         } else {
-          var password = p.get
-          if (password.startsWith("?")) {
-            password = Aes.ECB.decodeHex(loginKey, password.substring(1))
-          }
-          val token = new UsernamePasswordToken(u.get, password)
-          try {
-            val req = request
-            val session = secuirtyManager.login(req, response, token)
-            SecurityContext.set(securityContextBuilder.build(req, Some(session)))
-            forwardService(service, session)
-          } catch {
-            case e: AuthenticationException =>
-              val msg = messages.get(e.getClass).getOrElse(e.getMessage())
-              put("error", msg)
-              forward()
+          var valid = csrfDefender.valid(request, response)
+          if (valid) {
+            var password = p.get
+            if (password.startsWith("?")) {
+              password = Aes.ECB.decodeHex(loginKey, password.substring(1))
+            }
+            val token = new UsernamePasswordToken(u.get, password)
+            try {
+              val req = request
+              val session = secuirtyManager.login(req, response, token)
+              SecurityContext.set(securityContextBuilder.build(req, Some(session)))
+              forwardService(service, session)
+            } catch {
+              case e: AuthenticationException =>
+                val msg = messages.get(e.getClass).getOrElse(e.getMessage())
+                put("error", msg)
+                toLoginForm()
+            }
+          } else {
+            null
           }
         }
     }
+  }
+
+  private def toLoginForm(): View = {
+    csrfDefender.addToken(request, response)
+    forward("login")
   }
 
   def success: View = {
@@ -111,6 +123,17 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         val ticket = ticketRegistry.generate(session, service)
         redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
       }
+    }
+  }
+  /**
+   * 用于加密用户密码的公开key，注意不要更改这里16。
+   */
+  private def loginKey: String = {
+    val serverName = request.getServerName
+    if (serverName.length >= 16) {
+      serverName.substring(0, 16)
+    } else {
+      Strings.rightPad(serverName, 16, '0')
     }
   }
 }
