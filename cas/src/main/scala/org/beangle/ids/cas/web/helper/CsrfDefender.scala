@@ -1,3 +1,21 @@
+/*
+ * Beangle, Agile Development Scaffold and Toolkits.
+ *
+ * Copyright © 2005, The Beangle Software.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.beangle.ids.cas.web.helper
 import java.net.URL
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
@@ -69,7 +87,7 @@ class CsrfDefender(key: String, target: URL) {
    * 60 length random string,with key as salt
    */
   def generateToken(): String = {
-    val buffer = new Array[Byte](50)
+    val buffer = new Array[Byte](25)
     secureRandom.nextBytes(buffer)
     val token = Hex.encode(buffer)
     val hash = Digests.md5Hex(token + key)
@@ -81,7 +99,7 @@ class CsrfDefender(key: String, target: URL) {
       false
     } else {
       val t = token.substring(0, 50)
-      Digests.md5Hex(t + key).substring(0, 10) == token.substring(51)
+      Digests.md5Hex(t + key).substring(0, 10) == token.substring(50)
     }
   }
 }
