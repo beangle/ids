@@ -18,8 +18,13 @@
  */
 package org.beangle.ids.cas.web.action
 
+import javax.servlet.http.HttpServletRequest
+
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.Strings
+import org.beangle.commons.web.url.UrlBuilder
+import org.beangle.commons.web.util.RequestUtils
+
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.SessionHelper
 import org.beangle.security.Securities
@@ -30,11 +35,12 @@ import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
-import org.beangle.webmvc.api.annotation.{ mapping, param }
+import org.beangle.webmvc.api.annotation.{ mapping, param, ignore }
 import org.beangle.webmvc.api.view.View
 import org.beangle.ids.cas.web.helper.CsrfDefender
-import org.beangle.ids.cas.CasConfig
+import org.beangle.ids.cas.LoginConfig
 import org.beangle.commons.bean.Initializing
+
 /**
  * @author chaostone
  */
@@ -43,7 +49,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   private var csrfDefender: CsrfDefender = _
 
-  var config: CasConfig = _
+  var config: LoginConfig = _
 
   var securityContextBuilder: SecurityContextBuilder = _
 
@@ -70,8 +76,9 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (u.isEmpty || p.isEmpty) {
           toLoginForm()
         } else {
-          var valid = csrfDefender.valid(request, response)
-          if (valid) {
+          val isService = getBoolean("isService", false)
+          val validCsrf = isService || csrfDefender.valid(request, response)
+          if (validCsrf) {
             var password = p.get
             if (password.startsWith("?")) {
               password = Aes.ECB.decodeHex(loginKey, password.substring(1))
@@ -95,9 +102,19 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     }
   }
 
-  private def toLoginForm(): View = {
-    csrfDefender.addToken(request, response)
-    forward("login")
+  @ignore
+  def toLoginForm(): View = {
+    if (config.forceHttps && !RequestUtils.isHttps(request)) {
+      val req = request
+      val builder = new UrlBuilder(req.getContextPath())
+      builder.setScheme("https").setServerName(req.getServerName).setPort(443)
+        .setContextPath(req.getContextPath).setServletPath("/login")
+        .setQueryString(req.getQueryString)
+      redirect(to(builder.buildUrl()), "force https")
+    } else {
+      csrfDefender.addToken(request, response)
+      forward("index")
+    }
   }
 
   def success: View = {

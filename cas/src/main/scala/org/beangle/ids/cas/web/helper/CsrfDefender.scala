@@ -87,7 +87,7 @@ class CsrfDefender(key: String, target: URL) {
    * 60 length random string,with key as salt
    */
   def generateToken(): String = {
-    val buffer = new Array[Byte](50)
+    val buffer = new Array[Byte](25)
     secureRandom.nextBytes(buffer)
     val token = Hex.encode(buffer)
     val hash = Digests.md5Hex(token + key)
@@ -99,7 +99,7 @@ class CsrfDefender(key: String, target: URL) {
       false
     } else {
       val t = token.substring(0, 50)
-      Digests.md5Hex(t + key).substring(0, 10) == token.substring(51)
+      Digests.md5Hex(t + key).substring(0, 10) == token.substring(50)
     }
   }
 }

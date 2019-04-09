@@ -18,8 +18,9 @@
  */
 package org.beangle.ids.cas
 
-class CasConfig {
+class LoginConfig {
   var enableCaptha: Boolean = _
   var key: String = _
   var origin: String = _
+  var forceHttps:Boolean=_
 }
