@@ -2,21 +2,21 @@
   <parent>
     <groupId>org.beangle</groupId>
     <artifactId>beangle-scala</artifactId>
-    <version>25.0</version>
+    <version>25.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.beangle.ids</groupId>
   <artifactId>beangle-ids-parent_2.12</artifactId>
   <packaging>pom</packaging>
-  <name>Beangle Identifiy System Parent</name>
-  <version>0.0.20</version>
+  <name>Beangle IDS Parent</name>
+  <version>0.1.0</version>
 
   <properties>
-    <beangle.commons.version>5.1.2</beangle.commons.version>
-    <beangle.data.version>5.0.8</beangle.data.version>
-    <beangle.security.version>4.2.5</beangle.security.version>
-    <beangle.webmvc.version>0.3.22</beangle.webmvc.version>
-    <beangle.cache.version>0.0.14</beangle.cache.version>
+    <beangle.commons.version>5.1.6</beangle.commons.version>
+    <beangle.data.version>5.1.4</beangle.data.version>
+    <beangle.security.version>4.2.7</beangle.security.version>
+    <beangle.webmvc.version>0.3.26</beangle.webmvc.version>
+    <beangle.cache.version>0.0.15</beangle.cache.version>
   </properties>
 
   <modules>
@@ -92,12 +92,7 @@
       </dependency>
       <dependency>
         <groupId>org.beangle.ids.cas</groupId>
-        <artifactId>beangle-ids-cas-core_2.12</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.beangle.ids.cas</groupId>
-        <artifactId>beangle-ids-cas-web_2.12</artifactId>
+        <artifactId>beangle-ids-cas_2.12</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

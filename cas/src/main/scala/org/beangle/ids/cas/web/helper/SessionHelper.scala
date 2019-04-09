@@ -21,6 +21,9 @@ package org.beangle.ids.cas.web.helper
 import org.beangle.security.web.session.{ SessionIdPolicy, SessionIdReader }
 import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.webmvc.api.context.Params
+import org.beangle.commons.lang.Strings
+import org.beangle.commons.web.util.RequestUtils
+
 import javax.servlet.http.HttpServletRequest
 
 object SessionHelper {
@@ -33,18 +36,26 @@ object SessionHelper {
   }
 
   def isSameDomain(request: HttpServletRequest, service: String, sessionIdPolicy: CookieSessionIdPolicy): Boolean = {
-    val startIdx = service.indexOf("://") + 3
-    var portIdx = service.indexOf(':', startIdx)
-    if (portIdx < 0) portIdx = service.length
-    val slashIdx = service.indexOf('/', startIdx)
-    val serviceDomain = service.substring(startIdx, Math.min(portIdx, slashIdx))
-    val myDomain =
-      if (null == sessionIdPolicy.domain) {
-        request.getServerName
-      } else {
-        sessionIdPolicy.domain
-      }
-    serviceDomain.contains(myDomain)
+    if (isSameScheme(request, service)) {
+      val startIdx = service.indexOf("://") + 3
+      var portIdx = service.indexOf(':', startIdx)
+      if (portIdx < 0) portIdx = service.length
+      val slashIdx = service.indexOf('/', startIdx)
+      val serviceDomain = service.substring(startIdx, Math.min(portIdx, slashIdx))
+      val myDomain =
+        if (null == sessionIdPolicy.domain) {
+          request.getServerName
+        } else {
+          sessionIdPolicy.domain
+        }
+      serviceDomain.contains(myDomain)
+    } else {
+      false
+    }
   }
 
+  def isSameScheme(req: HttpServletRequest, service: String): Boolean = {
+    val serviceScheme = Strings.substringBefore(service, "://")
+    serviceScheme == (if (RequestUtils.isHttps(req)) "https" else "http")
+  }
 }
