@@ -40,6 +40,9 @@ import org.beangle.webmvc.api.view.View
 import org.beangle.ids.cas.web.helper.CsrfDefender
 import org.beangle.ids.cas.LoginConfig
 import org.beangle.commons.bean.Initializing
+import java.io.ByteArrayInputStream
+import org.beangle.webmvc.api.view.{ Stream, Status }
+import org.beangle.ids.cas.web.helper.CaptchaHelper
 
 /**
  * @author chaostone
@@ -50,6 +53,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   private var csrfDefender: CsrfDefender = _
 
   var config: LoginConfig = _
+
+  var captchaHelper: CaptchaHelper = _
 
   var securityContextBuilder: SecurityContextBuilder = _
 
@@ -66,7 +71,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   @mapping(value = "")
-  def index(@param(value = "service", required = false) service: String): View = {
+  def index(@param(value = "service", required = false) service:String): View = {
     Securities.session match {
       case Some(session) =>
         forwardService(service, session)
@@ -79,21 +84,26 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
           val isService = getBoolean("isService", false)
           val validCsrf = isService || csrfDefender.valid(request, response)
           if (validCsrf) {
-            var password = p.get
-            if (password.startsWith("?")) {
-              password = Aes.ECB.decodeHex(loginKey, password.substring(1))
-            }
-            val token = new UsernamePasswordToken(u.get, password)
-            try {
-              val req = request
-              val session = secuirtyManager.login(req, response, token)
-              SecurityContext.set(securityContextBuilder.build(req, Some(session)))
-              forwardService(service, session)
-            } catch {
-              case e: AuthenticationException =>
-                val msg = messages.get(e.getClass).getOrElse(e.getMessage())
-                put("error", msg)
-                toLoginForm()
+            if (!isService && config.enableCaptha && !captchaHelper.verify(request, response)) {
+              put("error", "错误的验证码")
+              toLoginForm()
+            } else {
+              var password = p.get
+              if (password.startsWith("?")) {
+                password = Aes.ECB.decodeHex(loginKey, password.substring(1))
+              }
+              val token = new UsernamePasswordToken(u.get, password)
+              try {
+                val req = request
+                val session = secuirtyManager.login(req, response, token)
+                SecurityContext.set(securityContextBuilder.build(req, Some(session)))
+                forwardService(service, session)
+              } catch {
+                case e: AuthenticationException =>
+                  val msg = messages.get(e.getClass).getOrElse(e.getMessage())
+                  put("error", msg)
+                  toLoginForm()
+              }
             }
           } else {
             null
@@ -153,4 +163,13 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       Strings.rightPad(serverName, 16, '0')
     }
   }
+
+  def captcha: View = {
+    if (config.enableCaptha) {
+      Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha")
+    } else {
+      Status(404)
+    }
+  }
+
 }
