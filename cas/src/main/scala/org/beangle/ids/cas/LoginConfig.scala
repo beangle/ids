@@ -19,7 +19,7 @@
 package org.beangle.ids.cas
 
 class LoginConfig {
-  var enableCaptha: Boolean = _
+  var enableCaptcha: Boolean = _
   var key: String = _
   var origin: String = _
   var forceHttps:Boolean=_

@@ -84,7 +84,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
           val isService = getBoolean("isService", false)
           val validCsrf = isService || csrfDefender.valid(request, response)
           if (validCsrf) {
-            if (!isService && config.enableCaptha && !captchaHelper.verify(request, response)) {
+            if (!isService && config.enableCaptcha && !captchaHelper.verify(request, response)) {
               put("error", "错误的验证码")
               toLoginForm()
             } else {
@@ -123,6 +123,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       redirect(to(builder.buildUrl()), "force https")
     } else {
       csrfDefender.addToken(request, response)
+      put("config",config)
+      put("current_timestamp",System.currentTimeMillis)
       forward("index")
     }
   }
@@ -165,7 +167,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   def captcha: View = {
-    if (config.enableCaptha) {
+    if (config.enableCaptcha) {
       Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha")
     } else {
       Status(404)

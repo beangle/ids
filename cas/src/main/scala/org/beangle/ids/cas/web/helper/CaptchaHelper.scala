@@ -38,7 +38,7 @@ class CaptchaHelper {
   captchaService.setMinGuarantedStorageDelayInSeconds(600)
 
   val secureRandom = new SecureRandom()
-  val cookieName = "captcha_id"
+  val cookieName = "CAPTCHA_ID"
 
   /**
    * 60 length random string,with key as salt
@@ -62,7 +62,7 @@ class CaptchaHelper {
     if (null == captchaId) {
       false
     } else {
-      val result = captchaService.validateResponseForID(captchaId, request.getParameter("captch_response"))
+      val result = captchaService.validateResponseForID(captchaId, request.getParameter("captcha_response"))
       if (result) {
         CookieUtils.deleteCookieByName(request, response, cookieName)
       }
