@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.beangle.ids</groupId>
     <artifactId>beangle-ids-parent_2.12</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>beangle-ids-cas_2.12</artifactId>
@@ -42,6 +42,11 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.octo.captcha</groupId>
+      <artifactId>jcaptcha</artifactId>
+      <version>1.0</version>
     </dependency>
   </dependencies>
 
