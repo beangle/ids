@@ -29,12 +29,12 @@ class Services extends Externalizable {
     this.services += service
   }
 
-  def writeExternal(out: ObjectOutput) {
+  def writeExternal(out: ObjectOutput): Unit = {
     out.writeInt(services.size)
     services.foreach(out.writeObject(_))
   }
 
-  def readExternal(in: ObjectInput) {
+  def readExternal(in: ObjectInput): Unit = {
     val size = in.readInt()
     ((0 until size) map (in.readObject.asInstanceOf[String])).toList
   }

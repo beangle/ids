@@ -23,7 +23,7 @@ import org.beangle.ids.cas.service.Services
 
 trait TicketCacheService {
 
-  def getTicketCache(): Cache[String, DefaultServiceTicket]
+  def getTicketCache: Cache[String, DefaultServiceTicket]
 
-  def getServiceCache(): Cache[String, Services]
+  def getServiceCache: Cache[String, Services]
 }

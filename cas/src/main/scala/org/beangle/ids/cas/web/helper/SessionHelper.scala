@@ -18,13 +18,11 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import org.beangle.security.web.session.{ SessionIdPolicy, SessionIdReader }
-import org.beangle.security.web.session.CookieSessionIdPolicy
-import org.beangle.webmvc.api.context.Params
+import javax.servlet.http.HttpServletRequest
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.web.util.RequestUtils
-
-import javax.servlet.http.HttpServletRequest
+import org.beangle.security.web.session.{CookieSessionIdPolicy, SessionIdReader}
+import org.beangle.webmvc.api.context.Params
 
 object SessionHelper {
 

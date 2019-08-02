@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.beangle.ids</groupId>
-    <artifactId>beangle-ids-parent_2.12</artifactId>
+    <artifactId>beangle-ids-parent_2.13</artifactId>
     <version>0.2.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>beangle-ids-cas_2.12</artifactId>
+  <artifactId>beangle-ids-cas_2.13</artifactId>
   <packaging>jar</packaging>
   <name>Beangle IDS Cas</name>
 
@@ -17,27 +17,27 @@
   <dependencies>
     <dependency>
       <groupId>org.beangle.security</groupId>
-      <artifactId>beangle-security-core_2.12</artifactId>
+      <artifactId>beangle-security-core_2.13</artifactId>
     </dependency>
     <dependency>
       <groupId>org.beangle.data</groupId>
-      <artifactId>beangle-data-jdbc_2.12</artifactId>
+      <artifactId>beangle-data-jdbc_2.13</artifactId>
     </dependency>
     <dependency>
       <groupId>org.beangle.cache</groupId>
-      <artifactId>beangle-cache-api_2.12</artifactId>
+      <artifactId>beangle-cache-api_2.13</artifactId>
     </dependency>
     <dependency>
       <groupId>org.beangle.cache</groupId>
-      <artifactId>beangle-cache-redis_2.12</artifactId>
+      <artifactId>beangle-cache-redis_2.13</artifactId>
     </dependency>
     <dependency>
       <groupId>org.beangle.security</groupId>
-      <artifactId>beangle-security-web_2.12</artifactId>
+      <artifactId>beangle-security-web_2.13</artifactId>
     </dependency>
      <dependency>
       <groupId>org.beangle.webmvc</groupId>
-      <artifactId>beangle-webmvc-view_2.12</artifactId>
+      <artifactId>beangle-webmvc-view_2.13</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

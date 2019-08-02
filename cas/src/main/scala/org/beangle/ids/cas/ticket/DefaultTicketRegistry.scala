@@ -33,9 +33,9 @@ class DefaultTicketRegistry(cacheService: TicketCacheService)
 
   var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
 
-  val tickets = cacheService.getTicketCache()
+  private val tickets = cacheService.getTicketCache
 
-  val services = cacheService.getServiceCache()
+  private val services = cacheService.getServiceCache
 
   override def validate(t: String, service: String): Result = {
     if (null == t || null == service) {
@@ -67,7 +67,7 @@ class DefaultTicketRegistry(cacheService: TicketCacheService)
 
   override def evictServices(session: Session): Option[Services] = {
     val rs = services.get(session.id)
-    rs foreach { s => services.evict(session.id) }
+    rs foreach { _ => services.evict(session.id) }
     rs
   }
 

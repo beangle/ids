@@ -18,16 +18,12 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import org.beangle.commons.codec.digest.Digests
-import org.beangle.commons.codec.binary.Hex
-import java.security.SecureRandom
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import org.beangle.commons.web.util.CookieUtils
-import com.octo.captcha.service.image.ImageCaptchaService
-import javax.imageio.ImageIO
 import java.io.ByteArrayOutputStream
+import java.security.SecureRandom
+
 import com.octo.captcha.service.image.DefaultManageableImageCaptchaService
+import javax.imageio.ImageIO
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.web.util.CookieUtils
 

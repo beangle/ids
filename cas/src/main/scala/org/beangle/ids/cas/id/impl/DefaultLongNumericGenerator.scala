@@ -30,7 +30,7 @@ class DefaultLongNumericGenerator(count: AtomicLong) extends NumericGenerator {
     this(new AtomicLong(initValue))
   }
 
-  override def nextNumber: String = {
+  override def nextNumber(): String = {
     val nextValue =
       if (this.count.compareAndSet(java.lang.Long.MAX_VALUE, 0)) java.lang.Long.MAX_VALUE
       else this.count.getAndIncrement()

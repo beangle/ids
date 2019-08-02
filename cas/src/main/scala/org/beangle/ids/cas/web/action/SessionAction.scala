@@ -18,15 +18,13 @@
  */
 package org.beangle.ids.cas.web.action
 
-import org.beangle.webmvc.api.action.ActionSupport
-import org.beangle.webmvc.api.annotation.mapping
-import org.beangle.webmvc.api.annotation.response
-import org.beangle.security.session.Session
-import org.beangle.security.web.WebSecurityManager
-import org.beangle.webmvc.api.view.Status
-import org.beangle.webmvc.api.view.View
-import org.beangle.webmvc.api.context.ActionContext
 import java.time.Instant
+
+import org.beangle.security.web.WebSecurityManager
+import org.beangle.webmvc.api.action.ActionSupport
+import org.beangle.webmvc.api.annotation.{mapping, response}
+import org.beangle.webmvc.api.context.ActionContext
+import org.beangle.webmvc.api.view.{Status, View}
 
 class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
 
@@ -57,7 +55,7 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   }
 
   private def notfound(id: String): View = {
-    ActionContext.current.response.getWriter.print(s"session id ${id} is not found.");
+    ActionContext.current.response.getWriter.print(s"session id $id is not found.");
     Status.NotFound
   }
 

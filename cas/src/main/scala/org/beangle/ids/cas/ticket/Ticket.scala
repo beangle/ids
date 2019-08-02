@@ -18,11 +18,10 @@
  */
 package org.beangle.ids.cas.ticket
 
-import java.io.{ Externalizable, ObjectInput, ObjectOutput }
+import java.io.{Externalizable, ObjectInput, ObjectOutput}
 
-import org.beangle.security.authc.Account
-import org.beangle.security.session.Session
 import org.beangle.security.authc.DefaultAccount
+import org.beangle.security.session.Session
 
 /**
  * @author chaostone
@@ -47,13 +46,13 @@ class DefaultServiceTicket extends ServiceTicket {
     this.service = service
   }
 
-  def writeExternal(out: ObjectOutput) {
+  def writeExternal(out: ObjectOutput): Unit = {
     out.writeObject(sessionId)
     principal.writeExternal(out)
     out.writeObject(service)
   }
 
-  def readExternal(in: ObjectInput) {
+  def readExternal(in: ObjectInput): Unit = {
     sessionId = in.readObject.asInstanceOf[String]
     principal = new DefaultAccount
     principal.readExternal(in)

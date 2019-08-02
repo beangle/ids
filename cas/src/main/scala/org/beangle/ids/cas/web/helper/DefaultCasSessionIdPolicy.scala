@@ -18,10 +18,8 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import org.beangle.commons.web.util.CookieUtils
+import javax.servlet.http.HttpServletRequest
 import org.beangle.ids.cas.id.impl.DefaultIdGenerator
-import org.beangle.security.web.session.SessionIdPolicy
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import org.beangle.security.web.session.CookieSessionIdPolicy
 
 /**
