@@ -17,13 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.beangle.ids.cas.web.helper
+
 import java.net.URL
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import org.beangle.commons.lang.Strings
 import java.security.SecureRandom
+
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
+import org.beangle.commons.lang.Strings
 import org.beangle.commons.web.util.CookieUtils
+
 /**
  *
  * @see "https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet"
@@ -51,7 +54,7 @@ class CsrfDefender(key: String, target: URL) {
     }
 
     //Compare the source against the expected target origin
-    val sourceURL = new URL(source);
+    val sourceURL = new URL(source)
     if (!target.getProtocol.equals(sourceURL.getProtocol)
       || !target.getHost.equals(sourceURL.getHost)
       || target.getPort != sourceURL.getPort) {
@@ -61,7 +64,7 @@ class CsrfDefender(key: String, target: URL) {
   }
 
   def valid(req: HttpServletRequest, res: HttpServletResponse): Boolean = {
-    if (!req.getMethod().equalsIgnoreCase("POST")) {
+    if (!req.getMethod.equalsIgnoreCase("POST")) {
       res.sendError(HttpServletResponse.SC_FORBIDDEN, "Only Support Http post method.")
       return false
     }
@@ -83,6 +86,7 @@ class CsrfDefender(key: String, target: URL) {
   def addToken(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     CookieUtils.addCookie(req, res, tokenName, generateToken(), -1)
   }
+
   /**
    * 60 length random string,with key as salt
    */

@@ -45,7 +45,7 @@ class DefaultRandomStringGenerator(maxlength: Int) extends RandomStringGenerator
 
   private val randomizer = new SecureRandom
 
-  override def nextString: String = {
+  override def nextString(): String = {
     val random = Array.ofDim[Byte](maxlength)
     this.randomizer.nextBytes(random)
     DefaultRandomStringGenerator.toString(random)

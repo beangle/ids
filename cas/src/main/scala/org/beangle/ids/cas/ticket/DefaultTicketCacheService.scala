@@ -18,12 +18,10 @@
  */
 package org.beangle.ids.cas.ticket
 
-import org.beangle.cache.CacheManager
 import org.beangle.cache.Cache
-import org.beangle.ids.cas.service.Services
-import org.beangle.ids.cas.service.Services
-import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.cache.redis.RedisCacheManager
+import org.beangle.commons.io.DefaultBinarySerializer
+import org.beangle.ids.cas.service.Services
 import redis.clients.jedis.JedisPool
 
 class DefaultTicketCacheService extends TicketCacheService {

@@ -18,8 +18,7 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import java.awt.Color
-import java.awt.Font
+import java.awt.{Color, Font}
 import java.awt.image.ImageFilter
 
 import com.octo.captcha.component.image.backgroundgenerator.UniColorBackgroundGenerator
@@ -37,10 +36,10 @@ import com.octo.captcha.image.gimpy.GimpyFactory
 class GmailEngine extends ListImageCaptchaEngine {
 
   protected def buildInitialFactories(): Unit = {
-    val minWordLength = new Integer(4)
-    val maxWordLength = new Integer(5)
-    val imageWidth = new Integer(90)
-    val imageHeight = new Integer(35)
+    val minWordLength = Integer.valueOf(4)
+    val maxWordLength = Integer.valueOf(5)
+    val imageWidth = Integer.valueOf(90)
+    val imageHeight = Integer.valueOf(35)
     val fontSize = 21
 
     val dictionnaryWords = new ComposeDictionaryWordGenerator(new FileDictionary("toddlist"))
@@ -48,7 +47,7 @@ class GmailEngine extends ListImageCaptchaEngine {
       new RandomListColorGenerator(Array(new Color(23, 170, 27), new Color(220, 34, 11), new Color(23, 67, 172))),
       Array.empty[TextDecorator])
     val background = new UniColorBackgroundGenerator(imageWidth, imageHeight, Color.white)
-    val font = new RandomFontGenerator(new Integer(fontSize), new Integer(fontSize),
+    val font = new RandomFontGenerator(Integer.valueOf(fontSize), Integer.valueOf(fontSize),
       Array(new Font("nyala", 1, fontSize), new Font("Bell MT", 0, fontSize),
         new Font("Credit valley", 1, fontSize)))
 

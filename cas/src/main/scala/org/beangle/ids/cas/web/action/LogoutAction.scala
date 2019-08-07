@@ -18,16 +18,12 @@
  */
 package org.beangle.ids.cas.web.action
 
-import org.beangle.security.context.SecurityContext
-import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
+import org.beangle.ids.cas.ticket.TicketRegistry
+import org.beangle.security.Securities
+import org.beangle.security.web.WebSecurityManager
+import org.beangle.webmvc.api.action.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.api.annotation.mapping
 import org.beangle.webmvc.api.view.View
-import org.beangle.cache.CacheManager
-import org.beangle.security.web.WebSecurityManager
-import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.security.session.Session
-import org.beangle.ids.cas.service.Services
-import org.beangle.security.Securities
 
 /**
  * @author chaostone

@@ -18,31 +18,26 @@
  */
 package org.beangle.ids.cas.web.action
 
-import javax.servlet.http.HttpServletRequest
+import java.io.ByteArrayInputStream
 
+import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.web.url.UrlBuilder
 import org.beangle.commons.web.util.RequestUtils
-
+import org.beangle.ids.cas.LoginConfig
 import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.ids.cas.web.helper.SessionHelper
+import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, SessionHelper}
 import org.beangle.security.Securities
-import org.beangle.security.authc.{ AccountExpiredException, AuthenticationException, BadCredentialsException, CredentialsExpiredException, DisabledException, LockedException, UsernameNotFoundException, UsernamePasswordToken }
+import org.beangle.security.authc._
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
-import org.beangle.webmvc.api.action.{ ActionSupport, ServletSupport }
-import org.beangle.webmvc.api.annotation.{ mapping, param, ignore }
-import org.beangle.webmvc.api.view.View
-import org.beangle.ids.cas.web.helper.CsrfDefender
-import org.beangle.ids.cas.LoginConfig
-import org.beangle.commons.bean.Initializing
-import java.io.ByteArrayInputStream
-import org.beangle.webmvc.api.view.{ Stream, Status }
-import org.beangle.ids.cas.web.helper.CaptchaHelper
+import org.beangle.webmvc.api.action.{ActionSupport, ServletSupport}
+import org.beangle.webmvc.api.annotation.{ignore, mapping, param}
+import org.beangle.webmvc.api.view.{Status, Stream, View}
 
 /**
  * @author chaostone
@@ -59,19 +54,19 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   var securityContextBuilder: SecurityContextBuilder = _
 
   val messages: Map[Class[_], String] = Map(
-    (classOf[AccountExpiredException] -> "账户过期"),
-    (classOf[UsernameNotFoundException] -> "找不到该用户"),
-    (classOf[BadCredentialsException] -> "密码错误"),
-    (classOf[LockedException] -> "账户被锁定"),
-    (classOf[DisabledException] -> "账户被禁用"),
-    (classOf[CredentialsExpiredException] -> "密码过期"))
+    classOf[AccountExpiredException] -> "账户过期",
+    classOf[UsernameNotFoundException] -> "找不到该用户",
+    classOf[BadCredentialsException] -> "密码错误",
+    classOf[LockedException] -> "账户被锁定",
+    classOf[DisabledException] -> "账户被禁用",
+    classOf[CredentialsExpiredException] -> "密码过期")
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(config.key, config.origin)
   }
 
   @mapping(value = "")
-  def index(@param(value = "service", required = false) service:String): View = {
+  def index(@param(value = "service", required = false) service: String): View = {
     Securities.session match {
       case Some(session) =>
         forwardService(service, session)
@@ -81,7 +76,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (u.isEmpty || p.isEmpty) {
           toLoginForm()
         } else {
-          val isService = getBoolean("isService", false)
+          val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
           if (validCsrf) {
             if (!isService && config.enableCaptcha && !captchaHelper.verify(request, response)) {
@@ -100,7 +95,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                 forwardService(service, session)
               } catch {
                 case e: AuthenticationException =>
-                  val msg = messages.get(e.getClass).getOrElse(e.getMessage())
+                  val msg = messages.getOrElse(e.getClass,e.getMessage)
                   put("error", msg)
                   toLoginForm()
               }
@@ -116,15 +111,15 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   def toLoginForm(): View = {
     if (config.forceHttps && !RequestUtils.isHttps(request)) {
       val req = request
-      val builder = new UrlBuilder(req.getContextPath())
+      val builder = new UrlBuilder(req.getContextPath)
       builder.setScheme("https").setServerName(req.getServerName).setPort(443)
         .setContextPath(req.getContextPath).setServletPath("/login")
         .setQueryString(req.getQueryString)
       redirect(to(builder.buildUrl()), "force https")
     } else {
       csrfDefender.addToken(request, response)
-      put("config",config)
-      put("current_timestamp",System.currentTimeMillis)
+      put("config", config)
+      put("current_timestamp", System.currentTimeMillis)
       forward("index")
     }
   }
@@ -154,6 +149,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       }
     }
   }
+
   /**
    * 用于加密用户密码的公开key，注意不要更改这里16。
    */
