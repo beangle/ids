@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.beangle</groupId>
     <artifactId>beangle-scala</artifactId>
-    <version>26.2</version>
+    <version>26.4</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.beangle.ids</groupId>
@@ -12,10 +12,10 @@
   <version>0.2.3-SNAPSHOT</version>
 
   <properties>
-    <beangle.commons.version>5.1.8</beangle.commons.version>
-    <beangle.data.version>5.1.8</beangle.data.version>
-    <beangle.security.version>4.2.8</beangle.security.version>
-    <beangle.webmvc.version>0.3.30</beangle.webmvc.version>
+    <beangle.commons.version>5.1.9</beangle.commons.version>
+    <beangle.data.version>5.1.11</beangle.data.version>
+    <beangle.security.version>4.2.10-SNAPSHOT</beangle.security.version>
+    <beangle.webmvc.version>0.3.31</beangle.webmvc.version>
     <beangle.cache.version>0.0.16</beangle.cache.version>
   </properties>
 
@@ -84,11 +84,6 @@
         <groupId>org.beangle.webmvc</groupId>
         <artifactId>beangle-webmvc-stream-plugin_2.13</artifactId>
         <version>${beangle.webmvc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.beangle.cdi</groupId>
-        <artifactId>beangle-cdi-spring_2.13</artifactId>
-        <version>${beangle.cdi.version}</version>
       </dependency>
       <dependency>
         <groupId>org.beangle.ids.cas</groupId>

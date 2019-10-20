@@ -22,16 +22,16 @@ import java.io.ByteArrayInputStream
 
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
-import org.beangle.commons.lang.Strings
+import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.commons.web.url.UrlBuilder
-import org.beangle.commons.web.util.RequestUtils
+import org.beangle.commons.web.util.{CookieUtils, RequestUtils}
 import org.beangle.ids.cas.LoginConfig
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, SessionHelper}
 import org.beangle.security.Securities
 import org.beangle.security.authc._
 import org.beangle.security.context.SecurityContext
-import org.beangle.security.session.Session
+import org.beangle.security.session.{OvermaxSessionException, Session}
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
@@ -53,13 +53,17 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   var securityContextBuilder: SecurityContextBuilder = _
 
+  var passwordStrengthChecker: PasswordStrengthChecker = _
+
   val messages: Map[Class[_], String] = Map(
     classOf[AccountExpiredException] -> "账户过期",
     classOf[UsernameNotFoundException] -> "找不到该用户",
     classOf[BadCredentialsException] -> "密码错误",
     classOf[LockedException] -> "账户被锁定",
     classOf[DisabledException] -> "账户被禁用",
-    classOf[CredentialsExpiredException] -> "密码过期")
+    classOf[CredentialsExpiredException] -> "密码过期",
+    classOf[OvermaxSessionException] -> "超过最大人数上限"
+  )
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(config.key, config.origin)
@@ -83,21 +87,38 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
               put("error", "错误的验证码")
               toLoginForm()
             } else {
-              var password = p.get
-              if (password.startsWith("?")) {
-                password = Aes.ECB.decodeHex(loginKey, password.substring(1))
-              }
-              val token = new UsernamePasswordToken(u.get, password)
-              try {
-                val req = request
-                val session = secuirtyManager.login(req, response, token)
-                SecurityContext.set(securityContextBuilder.build(req, Some(session)))
-                forwardService(service, session)
-              } catch {
-                case e: AuthenticationException =>
-                  val msg = messages.getOrElse(e.getClass,e.getMessage)
-                  put("error", msg)
-                  toLoginForm()
+              if (overMaxFailure(u.get)) {
+                put("error", "密码错误三次以上，该账户暂停登录")
+                toLoginForm()
+              } else {
+                var password = p.get
+                if (password.startsWith("?")) {
+                  password = Aes.ECB.decodeHex(loginKey, password.substring(1))
+                }
+                val token = new UsernamePasswordToken(u.get, password)
+                try {
+                  val req = request
+                  val session = secuirtyManager.login(req, response, token)
+                  SecurityContext.set(securityContextBuilder.build(req, Some(session)))
+                  if (config.checkPasswordStrength && !isService) {
+                    val strength = passwordStrengthChecker.check(password)
+                    if (strength == PasswordStrengths.VeryWeak || strength == PasswordStrengths.Weak) {
+                      redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), "检测到弱密码，请修改")
+                    } else {
+                      forwardService(service, session)
+                    }
+                  } else {
+                    forwardService(service, session)
+                  }
+                } catch {
+                  case e: AuthenticationException =>
+                    val msg = messages.getOrElse(e.getClass, e.getMessage)
+                    put("error", msg)
+                    if (e.isInstanceOf[BadCredentialsException]) {
+                      rememberFailue(u.get)
+                    }
+                    toLoginForm()
+                }
               }
             }
           } else {
@@ -105,6 +126,28 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
           }
         }
     }
+  }
+
+  /** 密码错误次数是否3次以上 */
+  def overMaxFailure(princial: String): Boolean = {
+    var c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    var failure = 0
+    if (Strings.isNotBlank(c)) {
+      failure = Numbers.toInt(c)
+    }
+    failure >= 3
+  }
+
+  /** 记录密码实效的次数
+   * @param princial
+   */
+  def rememberFailue(princial: String): Unit = {
+    var c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    var failure = 1
+    if (Strings.isNotBlank(c)) {
+      failure = Numbers.toInt(c) + 1
+    }
+    CookieUtils.addCookie(request, response, "failure_" + princial, failure.toString, 15 * 60)
   }
 
   @ignore
