@@ -19,8 +19,15 @@
 package org.beangle.ids.cas
 
 class LoginConfig {
+  /**是否登录界面启用验证码*/
   var enableCaptcha: Boolean = _
+  /**防止跨站攻击的key，用于加密生成cookie*/
   var key: String = _
+  /**本站的源地址*/
   var origin: String = _
+  /**是否强制使用https*/
   var forceHttps:Boolean=_
+  /**是否检查密码强度*/
+  var checkPasswordStrength:Boolean=_
+
 }

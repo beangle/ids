@@ -26,8 +26,8 @@ import redis.clients.jedis.JedisPool
 
 class DefaultTicketCacheService extends TicketCacheService {
 
-  var tickets: Cache[String, DefaultServiceTicket] = _
-  var services: Cache[String, Services] = _
+  private[this] var tickets: Cache[String, DefaultServiceTicket] = _
+  private[this] var services: Cache[String, Services] = _
 
   def this(pool: JedisPool) {
     this()
@@ -41,11 +41,11 @@ class DefaultTicketCacheService extends TicketCacheService {
     services = cacheManager.getCache("cas_services", classOf[String], classOf[Services])
   }
 
-  override def getTicketCache(): Cache[String, DefaultServiceTicket] = {
+  override def getTicketCache: Cache[String, DefaultServiceTicket] = {
     tickets
   }
 
-  override def getServiceCache(): Cache[String, Services] = {
+  override def getServiceCache: Cache[String, Services] = {
     services
   }
 }

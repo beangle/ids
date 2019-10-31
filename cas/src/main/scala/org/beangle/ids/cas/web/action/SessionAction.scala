@@ -38,6 +38,12 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   }
 
   @response
+  @mapping("ids/{principal}")
+  def ids(principal: String): String = {
+    secuirtyManager.registry.findByPrincipal(principal).map(_.id).mkString(",")
+  }
+
+  @response
   @mapping("{id}/access")
   def access(id: String): View = {
     val registry = secuirtyManager.registry
