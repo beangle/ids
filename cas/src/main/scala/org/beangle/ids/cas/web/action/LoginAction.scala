@@ -88,7 +88,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
               toLoginForm()
             } else {
               if (overMaxFailure(u.get)) {
-                put("error", "密码错误三次以上，该账户暂停登录")
+                put("error", "密码错误三次以上，暂停登录")
                 toLoginForm()
               } else {
                 var password = p.get
