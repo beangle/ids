@@ -33,14 +33,33 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   def index(id: String): Any = {
     secuirtyManager.registry.get(id) match {
       case Some(s) => s
-      case None    => notfound(id)
+      case None => notfound(id)
     }
   }
 
+  @mapping("{principal}/ids")
+  def ids(principal: String): View = {
+    val ids = secuirtyManager.registry.findByPrincipal(principal).map(_.id).mkString(",")
+    ActionContext.current.response.getWriter.print(ids)
+    Status.Ok
+  }
+
   @response
-  @mapping("ids/{principal}")
-  def ids(principal: String): String = {
-    secuirtyManager.registry.findByPrincipal(principal).map(_.id).mkString(",")
+  @mapping("{id}/expire")
+  def expire(id: String): View = {
+    secuirtyManager.registry.get(id) match {
+      case Some(s) => s
+        val msg =
+          if (s.expired) {
+            secuirtyManager.registry.expire(s.id)
+            s"Expire $id successfully."
+          } else {
+            s"Cannot expire live session."
+          }
+        ActionContext.current.response.getWriter.print(msg)
+        Status.Ok
+      case None => notfound(id)
+    }
   }
 
   @response
@@ -51,7 +70,7 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
       case Some(s) =>
         val accessAt = get("time") match {
           case Some(time) => Instant.ofEpochSecond(time.toLong)
-          case None       => Instant.now
+          case None => Instant.now
         }
         registry.access(s.id, accessAt)
         ActionContext.current.response.getWriter.print("ok")
@@ -61,7 +80,7 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   }
 
   private def notfound(id: String): View = {
-    ActionContext.current.response.getWriter.print(s"session id $id is not found.");
+    ActionContext.current.response.getWriter.print(s"session id $id is not found.")
     Status.NotFound
   }
 
