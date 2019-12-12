@@ -20,6 +20,7 @@ package org.beangle.ids.cas.web.action
 
 import java.io.ByteArrayInputStream
 
+import javax.servlet.http.HttpServletRequest
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.{Numbers, Strings}
@@ -78,18 +79,18 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         val u = get("username")
         val p = get("password")
         if (u.isEmpty || p.isEmpty) {
-          toLoginForm()
+          toLoginForm(request, service)
         } else {
           val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
           if (validCsrf) {
             if (!isService && config.enableCaptcha && !captchaHelper.verify(request, response)) {
               put("error", "错误的验证码")
-              toLoginForm()
+              toLoginForm(request, service)
             } else {
               if (overMaxFailure(u.get)) {
                 put("error", "密码错误三次以上，暂停登录")
-                toLoginForm()
+                toLoginForm(request, service)
               } else {
                 var password = p.get
                 if (password.startsWith("?")) {
@@ -117,7 +118,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                     if (e.isInstanceOf[BadCredentialsException]) {
                       rememberFailue(u.get)
                     }
-                    toLoginForm()
+                    toLoginForm(request, service)
                 }
               }
             }
@@ -130,7 +131,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   /** 密码错误次数是否3次以上 */
   def overMaxFailure(princial: String): Boolean = {
-    var c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    val c = CookieUtils.getCookieValue(request, "failure_" + princial)
     var failure = 0
     if (Strings.isNotBlank(c)) {
       failure = Numbers.toInt(c)
@@ -139,10 +140,11 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   /** 记录密码实效的次数
-   * @param princial
+   *
+   * @param princial 账户
    */
   def rememberFailue(princial: String): Unit = {
-    var c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    val c = CookieUtils.getCookieValue(request, "failure_" + princial)
     var failure = 1
     if (Strings.isNotBlank(c)) {
       failure = Numbers.toInt(c) + 1
@@ -151,19 +153,22 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   @ignore
-  def toLoginForm(): View = {
-    if (config.forceHttps && !RequestUtils.isHttps(request)) {
-      val req = request
-      val builder = new UrlBuilder(req.getContextPath)
-      builder.setScheme("https").setServerName(req.getServerName).setPort(443)
-        .setContextPath(req.getContextPath).setServletPath("/login")
-        .setQueryString(req.getQueryString)
-      redirect(to(builder.buildUrl()), "force https")
+  def toLoginForm(req: HttpServletRequest, service: String): View = {
+    if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
+      redirect(to(service), null)
     } else {
-      csrfDefender.addToken(request, response)
-      put("config", config)
-      put("current_timestamp", System.currentTimeMillis)
-      forward("index")
+      if (config.forceHttps && !RequestUtils.isHttps(request)) {
+        val builder = new UrlBuilder(req.getContextPath)
+        builder.setScheme("https").setServerName(req.getServerName).setPort(443)
+          .setContextPath(req.getContextPath).setServletPath("/login")
+          .setQueryString(req.getQueryString)
+        redirect(to(builder.buildUrl()), "force https")
+      } else {
+        csrfDefender.addToken(req, response)
+        put("config", config)
+        put("current_timestamp", System.currentTimeMillis)
+        forward("index")
+      }
     }
   }
 
