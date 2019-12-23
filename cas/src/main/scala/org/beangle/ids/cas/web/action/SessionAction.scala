@@ -48,7 +48,7 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   @mapping("{id}/expire")
   def expire(id: String): View = {
     secuirtyManager.registry.get(id) match {
-      case Some(s) => s
+      case Some(s) =>
         val msg =
           if (s.expired) {
             secuirtyManager.registry.expire(s.id)

@@ -19,7 +19,8 @@
 package org.beangle.ids.cas.web.action
 
 import org.beangle.commons.lang.Strings
-import org.beangle.ids.cas.ticket.TicketRegistry
+import org.beangle.ids.cas.service.CasService
+import org.beangle.ids.cas.ticket.{Result, TicketRegistry}
 import org.beangle.webmvc.api.action.ActionSupport
 import org.beangle.webmvc.api.annotation.{action, mapping, param}
 import org.beangle.webmvc.api.view.View
@@ -30,10 +31,17 @@ import org.beangle.webmvc.api.view.View
 @action("serviceValidate")
 class ServiceValidateAction(ticketRegistry: TicketRegistry) extends ActionSupport {
 
+  var casService: CasService = _
+
   @mapping("")
   def index(@param(value = "service", required = false) service: String, @param(value = "ticket", required = false) ticket: String): View = {
-    val result = ticketRegistry.validate(ticket, service)
-    put("result", result)
-    forward(if (Strings.isEmpty(result.code)) "success" else "failure")
+    if (casService.isValidClient(service)) {
+      val result = ticketRegistry.validate(ticket, service)
+      put("result", result)
+      forward(if (Strings.isEmpty(result.code)) "success" else "failure")
+    } else {
+      put("result", Result(None, "403", "Invalid Client"))
+      forward("failure")
+    }
   }
 }
