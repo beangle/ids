@@ -59,7 +59,6 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   var passwordStrengthChecker: PasswordStrengthChecker = _
 
-
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(setting.key, setting.origin)
   }
@@ -134,7 +133,6 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   /** 记录密码实效的次数
-   *
    * @param princial 账户
    */
   def rememberFailue(princial: String): Unit = {
@@ -148,21 +146,26 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   @ignore
   def toLoginForm(req: HttpServletRequest, service: String): View = {
-    if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
-      redirect(to(service), null)
-    } else {
-      if (setting.forceHttps && !RequestUtils.isHttps(request)) {
-        val builder = new UrlBuilder(req.getContextPath)
-        builder.setScheme("https").setServerName(req.getServerName).setPort(443)
-          .setContextPath(req.getContextPath).setServletPath("/login")
-          .setQueryString(req.getQueryString)
-        redirect(to(builder.buildUrl()), "force https")
+    if (casService.isValidClient(service)) {
+      if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
+        redirect(to(service), null)
       } else {
-        csrfDefender.addToken(req, response)
-        put("config", setting)
-        put("current_timestamp", System.currentTimeMillis)
-        forward("index")
+        if (setting.forceHttps && !RequestUtils.isHttps(request)) {
+          val builder = new UrlBuilder(req.getContextPath)
+          builder.setScheme("https").setServerName(req.getServerName).setPort(443)
+            .setContextPath(req.getContextPath).setServletPath("/login")
+            .setQueryString(req.getQueryString)
+          redirect(to(builder.buildUrl()), "force https")
+        } else {
+          csrfDefender.addToken(req, response)
+          put("config", setting)
+          put("current_timestamp", System.currentTimeMillis)
+          forward("index")
+        }
       }
+    } else {
+      response.getWriter.write("Invalid client")
+      Status.Forbidden
     }
   }
 
@@ -182,9 +185,14 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (SessionHelper.isSameDomain(request, service, idPolicy)) {
           redirect(to(service), null)
         } else {
-          val serviceWithSid =
-            service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
-          redirect(to(serviceWithSid), null)
+          if (casService.isValidClient(service)) {
+            val serviceWithSid =
+              service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
+            redirect(to(serviceWithSid), null)
+          }else{
+            response.getWriter.write("Invalid client")
+            Status.Forbidden
+          }
         }
       } else {
         if (casService.isValidClient(service)) {
