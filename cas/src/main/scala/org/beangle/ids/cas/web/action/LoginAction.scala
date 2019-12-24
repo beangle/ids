@@ -20,18 +20,20 @@ package org.beangle.ids.cas.web.action
 
 import java.io.ByteArrayInputStream
 
+import javax.servlet.http.HttpServletRequest
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.commons.web.url.UrlBuilder
 import org.beangle.commons.web.util.{CookieUtils, RequestUtils}
-import org.beangle.ids.cas.LoginConfig
+import org.beangle.ids.cas.CasSetting
+import org.beangle.ids.cas.service.CasService
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, SessionHelper}
 import org.beangle.security.Securities
 import org.beangle.security.authc._
 import org.beangle.security.context.SecurityContext
-import org.beangle.security.session.{OvermaxSessionException, Session}
+import org.beangle.security.session.Session
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
@@ -47,26 +49,18 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   private var csrfDefender: CsrfDefender = _
 
-  var config: LoginConfig = _
+  var setting: CasSetting = _
 
   var captchaHelper: CaptchaHelper = _
+
+  var casService: CasService = _
 
   var securityContextBuilder: SecurityContextBuilder = _
 
   var passwordStrengthChecker: PasswordStrengthChecker = _
 
-  val messages: Map[Class[_], String] = Map(
-    classOf[AccountExpiredException] -> "账户过期",
-    classOf[UsernameNotFoundException] -> "找不到该用户",
-    classOf[BadCredentialsException] -> "密码错误",
-    classOf[LockedException] -> "账户被锁定",
-    classOf[DisabledException] -> "账户被禁用",
-    classOf[CredentialsExpiredException] -> "密码过期",
-    classOf[OvermaxSessionException] -> "超过最大人数上限"
-  )
-
   override def init(): Unit = {
-    csrfDefender = new CsrfDefender(config.key, config.origin)
+    csrfDefender = new CsrfDefender(setting.key, setting.origin)
   }
 
   @mapping(value = "")
@@ -78,18 +72,18 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         val u = get("username")
         val p = get("password")
         if (u.isEmpty || p.isEmpty) {
-          toLoginForm()
+          toLoginForm(request, service)
         } else {
           val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
           if (validCsrf) {
-            if (!isService && config.enableCaptcha && !captchaHelper.verify(request, response)) {
+            if (!isService && setting.enableCaptcha && !captchaHelper.verify(request, response)) {
               put("error", "错误的验证码")
-              toLoginForm()
+              toLoginForm(request, service)
             } else {
               if (overMaxFailure(u.get)) {
                 put("error", "密码错误三次以上，暂停登录")
-                toLoginForm()
+                toLoginForm(request, service)
               } else {
                 var password = p.get
                 if (password.startsWith("?")) {
@@ -100,7 +94,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                   val req = request
                   val session = secuirtyManager.login(req, response, token)
                   SecurityContext.set(securityContextBuilder.build(req, Some(session)))
-                  if (config.checkPasswordStrength && !isService) {
+                  if (setting.checkPasswordStrength && !isService) {
                     val strength = passwordStrengthChecker.check(password)
                     if (strength == PasswordStrengths.VeryWeak || strength == PasswordStrengths.Weak) {
                       redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), "检测到弱密码，请修改")
@@ -112,12 +106,12 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                   }
                 } catch {
                   case e: AuthenticationException =>
-                    val msg = messages.getOrElse(e.getClass, e.getMessage)
+                    val msg = casService.getMesage(e)
                     put("error", msg)
                     if (e.isInstanceOf[BadCredentialsException]) {
                       rememberFailue(u.get)
                     }
-                    toLoginForm()
+                    toLoginForm(request, service)
                 }
               }
             }
@@ -130,7 +124,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   /** 密码错误次数是否3次以上 */
   def overMaxFailure(princial: String): Boolean = {
-    var c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    val c = CookieUtils.getCookieValue(request, "failure_" + princial)
     var failure = 0
     if (Strings.isNotBlank(c)) {
       failure = Numbers.toInt(c)
@@ -139,10 +133,10 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   /** 记录密码实效的次数
-   * @param princial
+   * @param princial 账户
    */
   def rememberFailue(princial: String): Unit = {
-    var c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    val c = CookieUtils.getCookieValue(request, "failure_" + princial)
     var failure = 1
     if (Strings.isNotBlank(c)) {
       failure = Numbers.toInt(c) + 1
@@ -151,19 +145,27 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   @ignore
-  def toLoginForm(): View = {
-    if (config.forceHttps && !RequestUtils.isHttps(request)) {
-      val req = request
-      val builder = new UrlBuilder(req.getContextPath)
-      builder.setScheme("https").setServerName(req.getServerName).setPort(443)
-        .setContextPath(req.getContextPath).setServletPath("/login")
-        .setQueryString(req.getQueryString)
-      redirect(to(builder.buildUrl()), "force https")
+  def toLoginForm(req: HttpServletRequest, service: String): View = {
+    if (casService.isValidClient(service)) {
+      if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
+        redirect(to(service), null)
+      } else {
+        if (setting.forceHttps && !RequestUtils.isHttps(request)) {
+          val builder = new UrlBuilder(req.getContextPath)
+          builder.setScheme("https").setServerName(req.getServerName).setPort(443)
+            .setContextPath(req.getContextPath).setServletPath("/login")
+            .setQueryString(req.getQueryString)
+          redirect(to(builder.buildUrl()), "force https")
+        } else {
+          csrfDefender.addToken(req, response)
+          put("config", setting)
+          put("current_timestamp", System.currentTimeMillis)
+          forward("index")
+        }
+      }
     } else {
-      csrfDefender.addToken(request, response)
-      put("config", config)
-      put("current_timestamp", System.currentTimeMillis)
-      forward("index")
+      response.getWriter.write("Invalid client")
+      Status.Forbidden
     }
   }
 
@@ -171,6 +173,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     put("logined", Securities.session.isDefined)
     forward()
   }
+
 
   private def forwardService(service: String, session: Session): View = {
     if (null == service) {
@@ -182,13 +185,23 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (SessionHelper.isSameDomain(request, service, idPolicy)) {
           redirect(to(service), null)
         } else {
-          val serviceWithSid =
-            service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
-          redirect(to(serviceWithSid), null)
+          if (casService.isValidClient(service)) {
+            val serviceWithSid =
+              service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
+            redirect(to(serviceWithSid), null)
+          }else{
+            response.getWriter.write("Invalid client")
+            Status.Forbidden
+          }
         }
       } else {
-        val ticket = ticketRegistry.generate(session, service)
-        redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
+        if (casService.isValidClient(service)) {
+          val ticket = ticketRegistry.generate(session, service)
+          redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
+        } else {
+          response.getWriter.write("Invalid client")
+          Status.Forbidden
+        }
       }
     }
   }
@@ -206,7 +219,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   def captcha: View = {
-    if (config.enableCaptcha) {
+    if (setting.enableCaptcha) {
       Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha")
     } else {
       Status(404)
