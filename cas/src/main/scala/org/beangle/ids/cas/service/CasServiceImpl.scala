@@ -18,6 +18,7 @@
  */
 package org.beangle.ids.cas.service
 
+import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.CasSetting
 import org.beangle.security.authc._
 import org.beangle.security.session.OvermaxSessionException
@@ -40,9 +41,13 @@ class CasServiceImpl extends CasService {
   }
 
   override def isValidClient(url: String): Boolean = {
-    val rs = setting.clients.find { x =>
-      url.startsWith(x)
+    if (Strings.isEmpty(url)) {
+      true
+    } else {
+      val rs = setting.clients.find { x =>
+        url.startsWith(x)
+      }
+      rs.nonEmpty
     }
-    rs.nonEmpty
   }
 }
