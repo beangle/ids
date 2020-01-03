@@ -76,12 +76,13 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         } else {
           val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
+          val username=u.get.trim()
           if (validCsrf) {
             if (!isService && setting.enableCaptcha && !captchaHelper.verify(request, response)) {
               put("error", "错误的验证码")
               toLoginForm(request, service)
             } else {
-              if (overMaxFailure(u.get)) {
+              if (overMaxFailure(username)) {
                 put("error", "密码错误三次以上，暂停登录")
                 toLoginForm(request, service)
               } else {
@@ -89,7 +90,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                 if (password.startsWith("?")) {
                   password = Aes.ECB.decodeHex(loginKey, password.substring(1))
                 }
-                val token = new UsernamePasswordToken(u.get, password)
+                val token = new UsernamePasswordToken(username, password)
                 try {
                   val req = request
                   val session = secuirtyManager.login(req, response, token)
@@ -109,7 +110,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                     val msg = casService.getMesage(e)
                     put("error", msg)
                     if (e.isInstanceOf[BadCredentialsException]) {
-                      rememberFailue(u.get)
+                      rememberFailue(username)
                     }
                     toLoginForm(request, service)
                 }
