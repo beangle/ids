@@ -25,6 +25,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
 import org.beangle.commons.lang.Strings
+import org.beangle.commons.logging.Logging
 import org.beangle.commons.web.util.CookieUtils
 
 /**
@@ -34,7 +35,7 @@ import org.beangle.commons.web.util.CookieUtils
  * @see "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie"
  * @see "https://chloe.re/2016/04/13/goodbye-csrf-samesite-to-the-rescue/"
  */
-class CsrfDefender(key: String, target: URL) {
+class CsrfDefender(key: String, target: URL) extends Logging {
 
   var tokenName = "CSRF_TOKEN"
 
@@ -54,13 +55,20 @@ class CsrfDefender(key: String, target: URL) {
     }
 
     //Compare the source against the expected target origin
-    val sourceURL = new URL(source)
-    if (!target.getProtocol.equals(sourceURL.getProtocol)
-      || !target.getHost.equals(sourceURL.getHost)
-      || target.getPort != sourceURL.getPort) {
-      return false
+    try {
+      val sourceURL = new URL(source)
+      if (!target.getProtocol.equals(sourceURL.getProtocol)
+        || !target.getHost.equals(sourceURL.getHost)
+        || target.getPort != sourceURL.getPort) {
+        false
+      } else {
+        true
+      }
+    } catch {
+      case e: Throwable =>
+        logger.error(s"error source:$source for ${e.getMessage}")
+        false
     }
-    true
   }
 
   def valid(req: HttpServletRequest, res: HttpServletResponse): Boolean = {
