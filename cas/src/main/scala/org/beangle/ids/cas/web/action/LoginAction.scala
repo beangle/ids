@@ -34,9 +34,9 @@ import org.beangle.security.Securities
 import org.beangle.security.authc._
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
-import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
+import org.beangle.security.web.{EntryPoint, WebSecurityManager}
 import org.beangle.webmvc.api.action.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.api.annotation.{ignore, mapping, param}
 import org.beangle.webmvc.api.view.{Status, Stream, View}
@@ -54,6 +54,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   var captchaHelper: CaptchaHelper = _
 
   var casService: CasService = _
+
+  var entryPoint: EntryPoint = _
 
   var securityContextBuilder: SecurityContextBuilder = _
 
@@ -76,7 +78,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         } else {
           val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
-          val username=u.get.trim()
+          val username = u.get.trim()
           if (validCsrf) {
             if (!isService && setting.enableCaptcha && !captchaHelper.verify(request, response)) {
               put("error", "错误的验证码")
@@ -147,26 +149,31 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   @ignore
   def toLoginForm(req: HttpServletRequest, service: String): View = {
-    if (casService.isValidClient(service)) {
-      if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
-        redirect(to(service), null)
-      } else {
-        if (setting.forceHttps && !RequestUtils.isHttps(request)) {
-          val builder = new UrlBuilder(req.getContextPath)
-          builder.setScheme("https").setServerName(req.getServerName).setPort(443)
-            .setContextPath(req.getContextPath).setServletPath("/login")
-            .setQueryString(req.getQueryString)
-          redirect(to(builder.buildUrl()), "force https")
+    if (entryPoint.isLocalLogin(req, null)) {
+      if (casService.isValidClient(service)) {
+        if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
+          redirect(to(service), null)
         } else {
-          csrfDefender.addToken(req, response)
-          put("config", setting)
-          put("current_timestamp", System.currentTimeMillis)
-          forward("index")
+          if (setting.forceHttps && !RequestUtils.isHttps(request)) {
+            val builder = new UrlBuilder(req.getContextPath)
+            builder.setScheme("https").setServerName(req.getServerName).setPort(443)
+              .setContextPath(req.getContextPath).setServletPath("/login")
+              .setQueryString(req.getQueryString)
+            redirect(to(builder.buildUrl()), "force https")
+          } else {
+            csrfDefender.addToken(req, response)
+            put("setting", setting)
+            put("current_timestamp", System.currentTimeMillis)
+            forward("index")
+          }
         }
+      } else {
+        response.getWriter.write("Invalid client")
+        Status.Forbidden
       }
     } else {
-      response.getWriter.write("Invalid client")
-      Status.Forbidden
+      entryPoint.remoteLogin(req, response)
+      null
     }
   }
 
@@ -190,7 +197,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
             val serviceWithSid =
               service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
             redirect(to(serviceWithSid), null)
-          }else{
+          } else {
             response.getWriter.write("Invalid client")
             Status.Forbidden
           }

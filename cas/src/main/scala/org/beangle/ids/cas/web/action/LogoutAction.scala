@@ -18,8 +18,11 @@
  */
 package org.beangle.ids.cas.web.action
 
+import javax.servlet.http.HttpServletRequest
+import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.Securities
+import org.beangle.security.authc.DefaultAccount
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.webmvc.api.action.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.api.annotation.mapping
@@ -29,12 +32,15 @@ import org.beangle.webmvc.api.view.View
  * @author chaostone
  */
 class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
-    extends ActionSupport with ServletSupport {
+  extends ActionSupport with ServletSupport {
+
+  var casSetting: CasSetting = _
 
   @mapping(value = "")
   def index(): View = {
     Securities.session match {
       case Some(session) =>
+        val isRemote = session.principal.asInstanceOf[DefaultAccount].isRemote
         ticketRegistry.evictServices(session) match {
           case Some(services) =>
             put("services", services.services)
@@ -43,19 +49,23 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
             secuirtyManager.logout(request, response, session)
             get("service") match {
               case Some(service) => redirect(to(service), null)
-              case None => toLogin()
+              case None => toLogin(request, isRemote)
             }
         }
       case None =>
         get("service") match {
           case Some(service) => redirect(to(service), null)
-          case None          => toLogin()
+          case None => toLogin(request, false)
         }
     }
   }
 
-  private def toLogin(): View = {
-    redirect(to(classOf[LoginAction], "index"), null)
+  private def toLogin(request: HttpServletRequest, isRemote: Boolean): View = {
+    if (isRemote && casSetting.remoteLogoutUrl.isDefined) {
+      redirect(to(casSetting.remoteLogoutUrl.get), null)
+    } else {
+      redirect(to(classOf[LoginAction], "index"), null)
+    }
   }
 
 }
