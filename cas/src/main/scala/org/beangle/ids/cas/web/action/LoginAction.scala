@@ -20,7 +20,7 @@ package org.beangle.ids.cas.web.action
 
 import java.io.ByteArrayInputStream
 
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.{Numbers, Strings}
@@ -152,14 +152,14 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     if (entryPoint.isLocalLogin(req, null)) {
       if (casService.isValidClient(service)) {
         if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
-          redirect(to(service), null)
+          redirectService(response, service)
         } else {
           if (setting.forceHttps && !RequestUtils.isHttps(request)) {
             val builder = new UrlBuilder(req.getContextPath)
             builder.setScheme("https").setServerName(req.getServerName).setPort(443)
               .setContextPath(req.getContextPath).setServletPath("/login")
               .setQueryString(req.getQueryString)
-            redirect(to(builder.buildUrl()), "force https")
+            redirectService(response, builder.buildUrl())
           } else {
             csrfDefender.addToken(req, response)
             put("setting", setting)
@@ -191,12 +191,12 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       val isMember = SessionHelper.isMember(request, service, idPolicy)
       if (isMember) {
         if (SessionHelper.isSameDomain(request, service, idPolicy)) {
-          redirect(to(service), null)
+          redirectService(response, service)
         } else {
           if (casService.isValidClient(service)) {
             val serviceWithSid =
               service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
-            redirect(to(serviceWithSid), null)
+            redirectService(response, serviceWithSid)
           } else {
             response.getWriter.write("Invalid client")
             Status.Forbidden
@@ -205,13 +205,18 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       } else {
         if (casService.isValidClient(service)) {
           val ticket = ticketRegistry.generate(session, service)
-          redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
+          redirectService(response, service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket)
         } else {
           response.getWriter.write("Invalid client")
           Status.Forbidden
         }
       }
     }
+  }
+
+  private def redirectService(response: HttpServletResponse, service: String): View = {
+    response.sendRedirect(service)
+    null
   }
 
   /**
