@@ -20,7 +20,7 @@ package org.beangle.ids.cas.web.action
 
 import java.io.ByteArrayInputStream
 
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.{Numbers, Strings}
@@ -34,9 +34,9 @@ import org.beangle.security.Securities
 import org.beangle.security.authc._
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
-import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
+import org.beangle.security.web.{EntryPoint, WebSecurityManager}
 import org.beangle.webmvc.api.action.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.api.annotation.{ignore, mapping, param}
 import org.beangle.webmvc.api.view.{Status, Stream, View}
@@ -54,6 +54,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   var captchaHelper: CaptchaHelper = _
 
   var casService: CasService = _
+
+  var entryPoint: EntryPoint = _
 
   var securityContextBuilder: SecurityContextBuilder = _
 
@@ -76,7 +78,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         } else {
           val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
-          val username=u.get.trim()
+          val username = u.get.trim()
           if (validCsrf) {
             if (!isService && setting.enableCaptcha && !captchaHelper.verify(request, response)) {
               put("error", "错误的验证码")
@@ -147,26 +149,31 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   @ignore
   def toLoginForm(req: HttpServletRequest, service: String): View = {
-    if (casService.isValidClient(service)) {
-      if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
-        redirect(to(service), null)
-      } else {
-        if (setting.forceHttps && !RequestUtils.isHttps(request)) {
-          val builder = new UrlBuilder(req.getContextPath)
-          builder.setScheme("https").setServerName(req.getServerName).setPort(443)
-            .setContextPath(req.getContextPath).setServletPath("/login")
-            .setQueryString(req.getQueryString)
-          redirect(to(builder.buildUrl()), "force https")
+    if (entryPoint.isLocalLogin(req, null)) {
+      if (casService.isValidClient(service)) {
+        if (null != req.getParameter("gateway") && Strings.isNotBlank(service)) {
+          redirectService(response, service)
         } else {
-          csrfDefender.addToken(req, response)
-          put("config", setting)
-          put("current_timestamp", System.currentTimeMillis)
-          forward("index")
+          if (setting.forceHttps && !RequestUtils.isHttps(request)) {
+            val builder = new UrlBuilder(req.getContextPath)
+            builder.setScheme("https").setServerName(req.getServerName).setPort(443)
+              .setContextPath(req.getContextPath).setServletPath("/login")
+              .setQueryString(req.getQueryString)
+            redirectService(response, builder.buildUrl())
+          } else {
+            csrfDefender.addToken(req, response)
+            put("setting", setting)
+            put("current_timestamp", System.currentTimeMillis)
+            forward("index")
+          }
         }
+      } else {
+        response.getWriter.write("Invalid client")
+        Status.Forbidden
       }
     } else {
-      response.getWriter.write("Invalid client")
-      Status.Forbidden
+      entryPoint.remoteLogin(req, response)
+      null
     }
   }
 
@@ -184,13 +191,13 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       val isMember = SessionHelper.isMember(request, service, idPolicy)
       if (isMember) {
         if (SessionHelper.isSameDomain(request, service, idPolicy)) {
-          redirect(to(service), null)
+          redirectService(response, service)
         } else {
           if (casService.isValidClient(service)) {
             val serviceWithSid =
               service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
-            redirect(to(serviceWithSid), null)
-          }else{
+            redirectService(response, serviceWithSid)
+          } else {
             response.getWriter.write("Invalid client")
             Status.Forbidden
           }
@@ -198,13 +205,18 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       } else {
         if (casService.isValidClient(service)) {
           val ticket = ticketRegistry.generate(session, service)
-          redirect(to(service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket), null)
+          redirectService(response, service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket)
         } else {
           response.getWriter.write("Invalid client")
           Status.Forbidden
         }
       }
     }
+  }
+
+  private def redirectService(response: HttpServletResponse, service: String): View = {
+    response.sendRedirect(service)
+    null
   }
 
   /**

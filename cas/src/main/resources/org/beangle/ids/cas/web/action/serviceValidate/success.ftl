@@ -6,8 +6,8 @@
     <cas:user>${principal.name}</cas:user>
       <cas:attributes>
         <cas:userName>${principal.description}</cas:userName>
-        [#if principal.authorities??]<cas:authorities>${principal.authorities}</cas:authorities>[/#if]
-        [#if principal.permissions??]<cas:permissions>${principal.permissions}</cas:permissions>[/#if]
+        [#if principal.authorities??]<cas:authorities>[#list principal.authorities as a]${a}[#if a_has_next],[/#if][/#list]</cas:authorities>[/#if]
+        [#if principal.permissions??]<cas:permissions>[#list principal.permissions as a]${a}[#if a_has_next],[/#if][/#list]</cas:permissions>[/#if]
         [#if principal.details??]
         [#list principal.details?keys as key]
         <cas:${key}>${principal.details[key]}</cas:${key}>

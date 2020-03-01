@@ -37,6 +37,8 @@ class CasSetting {
   var forceHttps: Boolean = _
   /** 是否检查密码强度 */
   var checkPasswordStrength: Boolean = _
-  /** 允许的client*/
-  var clients :mutable.Buffer[String] = Collections.newBuffer[String]
+  /** 允许的client */
+  var clients: mutable.Buffer[String] = Collections.newBuffer[String]
+  /** 其他SSO退出地址 */
+  var remoteLogoutUrl: Option[String] = None
 }
