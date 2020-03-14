@@ -85,7 +85,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
               put("error", "错误的验证码")
               toLoginForm(request, service)
             } else {
-              if (UsernameValidator.validate(username)) {
+              if (UsernameValidator.illegal(username)) {
                 put("error", "非法用户名")
                 toLoginForm(request, service)
               } else if (overMaxFailure(username)) {

@@ -54,15 +54,17 @@ class CaptchaHelper {
   }
 
   def verify(request: HttpServletRequest, response: HttpServletResponse): Boolean = {
-    var captchaId = CookieUtils.getCookieValue(request, cookieName)
+    val captchaId = CookieUtils.getCookieValue(request, cookieName)
     if (null == captchaId) {
       false
     } else {
-      val result = captchaService.validateResponseForID(captchaId, request.getParameter("captcha_response"))
-      if (result) {
-        CookieUtils.deleteCookieByName(request, response, cookieName)
+      try {
+        val result = captchaService.validateResponseForID(captchaId, request.getParameter("captcha_response"))
+        if (result) CookieUtils.deleteCookieByName(request, response, cookieName)
+        result
+      } catch {
+        case e: Throwable => false
       }
-      result
     }
 
   }
