@@ -27,7 +27,7 @@ import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.commons.web.url.UrlBuilder
 import org.beangle.commons.web.util.{CookieUtils, RequestUtils}
 import org.beangle.ids.cas.CasSetting
-import org.beangle.ids.cas.service.CasService
+import org.beangle.ids.cas.service.{CasService, UsernameValidator}
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, SessionHelper}
 import org.beangle.security.Securities
@@ -76,6 +76,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         if (u.isEmpty || p.isEmpty) {
           toLoginForm(request, service)
         } else {
+          //username and password are provided.
           val isService = getBoolean("isService", defaultValue = false)
           val validCsrf = isService || csrfDefender.valid(request, response)
           val username = u.get.trim()
@@ -84,7 +85,10 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
               put("error", "错误的验证码")
               toLoginForm(request, service)
             } else {
-              if (overMaxFailure(username)) {
+              if (UsernameValidator.validate(username)) {
+                put("error", "非法用户名")
+                toLoginForm(request, service)
+              } else if (overMaxFailure(username)) {
                 put("error", "密码错误三次以上，暂停登录")
                 toLoginForm(request, service)
               } else {
@@ -127,7 +131,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   /** 密码错误次数是否3次以上 */
   def overMaxFailure(princial: String): Boolean = {
-    val c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    val p = princial.replace("@", "_")
+    val c = CookieUtils.getCookieValue(request, "failure_" + p)
     var failure = 0
     if (Strings.isNotBlank(c)) {
       failure = Numbers.toInt(c)
@@ -139,12 +144,13 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
    * @param princial 账户
    */
   def rememberFailue(princial: String): Unit = {
-    val c = CookieUtils.getCookieValue(request, "failure_" + princial)
+    val p = princial.replace("@", "_")
+    val c = CookieUtils.getCookieValue(request, "failure_" + p)
     var failure = 1
     if (Strings.isNotBlank(c)) {
       failure = Numbers.toInt(c) + 1
     }
-    CookieUtils.addCookie(request, response, "failure_" + princial, failure.toString, 15 * 60)
+    CookieUtils.addCookie(request, response, "failure_" + p, failure.toString, 5 * 60)
   }
 
   @ignore
