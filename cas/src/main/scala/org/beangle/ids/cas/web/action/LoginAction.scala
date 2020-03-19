@@ -57,9 +57,11 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   var entryPoint: EntryPoint = _
 
-  var securityContextBuilder: SecurityContextBuilder = _
+  var passwordPolicyProvider: PasswordPolicyProvider = _
 
-  var passwordStrengthChecker: PasswordStrengthChecker = _
+  var credentialStore: DBCredentialStore = _
+
+  var securityContextBuilder: SecurityContextBuilder = _
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(setting.key, setting.origin)
@@ -101,21 +103,32 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                   val req = request
                   val session = secuirtyManager.login(req, response, token)
                   SecurityContext.set(securityContextBuilder.build(req, Some(session)))
-                  if (setting.checkPasswordStrength && !isService) {
-                    val strength = passwordStrengthChecker.check(password)
-                    if (strength == PasswordStrengths.VeryWeak || strength == PasswordStrengths.Weak) {
-                      redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), "检测到弱密码，请修改")
+                  if (isService) {
+                    forwardService(service, session)
+                  } else {
+                    var credentialOk = true
+                    var msg = ""
+                    if (setting.checkPasswordStrength) {
+                      credentialOk = PasswordStrengthChecker.check(password, passwordPolicyProvider.getPolicy)
+                      msg = "检测到弱密码，请修改"
+                    }
+                    if (credentialOk) {
+                      credentialStore.getAge(username) foreach { age =>
+                        credentialOk = !age.expired
+                        msg = s"密码已经过期，请修改"
+                      }
+                    }
+                    if (!credentialOk) {
+                      redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), msg)
                     } else {
                       forwardService(service, session)
                     }
-                  } else {
-                    forwardService(service, session)
                   }
                 } catch {
                   case e: AuthenticationException =>
                     val msg = casService.getMesage(e)
                     put("error", msg)
-                    if (e.isInstanceOf[BadCredentialsException]) {
+                    if (e.isInstanceOf[BadCredentialException]) {
                       rememberFailue(username)
                     }
                     toLoginForm(request, service)
