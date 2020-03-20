@@ -29,10 +29,10 @@ class CasServiceImpl extends CasService {
   private val messages: Map[Class[_], String] = Map(
     classOf[AccountExpiredException] -> "账户过期",
     classOf[UsernameNotFoundException] -> "找不到该用户",
-    classOf[BadCredentialsException] -> "密码错误",
+    classOf[BadCredentialException] -> "密码错误",
     classOf[LockedException] -> "账户被锁定",
     classOf[DisabledException] -> "账户被禁用",
-    classOf[CredentialsExpiredException] -> "密码过期",
+    classOf[CredentialExpiredException] -> "密码过期",
     classOf[OvermaxSessionException] -> "超过最大人数上限"
   )
 
