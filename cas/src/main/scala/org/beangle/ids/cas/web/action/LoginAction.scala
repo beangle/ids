@@ -20,7 +20,7 @@ package org.beangle.ids.cas.web.action
 
 import java.io.ByteArrayInputStream
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.{Numbers, Strings}

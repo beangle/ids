@@ -18,7 +18,7 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.web.util.RequestUtils
 import org.beangle.security.web.session.{CookieSessionIdPolicy, SessionIdReader}

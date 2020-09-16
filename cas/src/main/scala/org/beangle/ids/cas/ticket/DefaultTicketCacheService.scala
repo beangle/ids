@@ -29,7 +29,7 @@ class DefaultTicketCacheService extends TicketCacheService {
   private[this] var tickets: Cache[String, DefaultServiceTicket] = _
   private[this] var services: Cache[String, Services] = _
 
-  def this(pool: JedisPool) {
+  def this(pool: JedisPool) = {
     this()
     DefaultBinarySerializer.registerClass(classOf[Services])
     DefaultBinarySerializer.registerClass(classOf[DefaultServiceTicket])

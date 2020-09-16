@@ -18,7 +18,7 @@
  */
 package org.beangle.ids.cas.web.action
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.Securities

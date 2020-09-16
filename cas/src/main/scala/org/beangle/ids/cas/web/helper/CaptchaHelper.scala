@@ -23,7 +23,7 @@ import java.security.SecureRandom
 
 import com.octo.captcha.service.image.DefaultManageableImageCaptchaService
 import javax.imageio.ImageIO
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.web.util.CookieUtils
 
