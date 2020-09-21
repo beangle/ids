@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong
  */
 class DefaultLongNumericGenerator(count: AtomicLong) extends NumericGenerator {
 
-  def this(initValue: Long) {
+  def this(initValue: Long) = {
     this(new AtomicLong(initValue))
   }
 
