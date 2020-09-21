@@ -31,7 +31,7 @@ class DefaultIdGenerator(numericGenerator: NumericGenerator, randomStringGenerat
 
   private val id = new scala.util.Random(System.currentTimeMillis).nextInt(1000000)
 
-  def this(p: String, maxlength: Int) {
+  def this(p: String, maxlength: Int) = {
     this(new DefaultLongNumericGenerator(1), new DefaultRandomStringGenerator(maxlength), p)
   }
 

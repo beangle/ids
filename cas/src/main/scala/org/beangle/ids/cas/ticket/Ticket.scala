@@ -39,7 +39,7 @@ class DefaultServiceTicket extends ServiceTicket {
   var principal: DefaultAccount = _
   var service: String = _
 
-  def this(session: Session, service: String) {
+  def this(session: Session, service: String) = {
     this()
     this.sessionId = session.id
     this.principal = session.principal.asInstanceOf[DefaultAccount]

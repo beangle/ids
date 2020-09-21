@@ -21,7 +21,7 @@ package org.beangle.ids.cas.web.helper
 import java.net.URL
 import java.security.SecureRandom
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
 import org.beangle.commons.lang.Strings
@@ -41,7 +41,7 @@ class CsrfDefender(key: String, target: URL) extends Logging {
 
   val secureRandom = new SecureRandom()
 
-  def this(key: String, origin: String) {
+  def this(key: String, origin: String) = {
     this(key, new URL(origin))
   }
 
