@@ -19,6 +19,7 @@
 package org.beangle.ids.cas.web.action
 
 import jakarta.servlet.http.HttpServletRequest
+import org.beangle.commons.web.util.CookieUtils
 import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.Securities
@@ -47,6 +48,8 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
             forward("service")
           case None =>
             secuirtyManager.logout(request, response, session)
+            //remove remote cas redirect hint(if possiable).
+            CookieUtils.deleteCookieByName(request,response,"CAS_service")
             get("service") match {
               case Some(service) => redirect(to(service), null)
               case None => toLogin(request, isRemote)
