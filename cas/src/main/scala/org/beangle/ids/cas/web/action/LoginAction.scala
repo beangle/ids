@@ -75,7 +75,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       case None =>
         val u = get("username")
         val p = get("password")
-        if (u.isEmpty || p.isEmpty) {
+        if (Strings.isBlank(u.orNull)  || Strings.isBlank(p.orNull)) {
           toLoginForm(request, service)
         } else {
           //username and password are provided.
