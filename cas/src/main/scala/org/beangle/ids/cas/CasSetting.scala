@@ -39,6 +39,8 @@ class CasSetting {
   var checkPasswordStrength: Boolean = _
   /** 允许的client */
   var clients: mutable.Buffer[String] = Collections.newBuffer[String]
+  /** 其他SSO登录地址 */
+  var remoteLoginUrl: Option[String] = None
   /** 其他SSO退出地址 */
   var remoteLogoutUrl: Option[String] = None
 }
