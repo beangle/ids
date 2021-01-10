@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.beangle.ids</groupId>
     <artifactId>beangle-ids-parent_2.13</artifactId>
-    <version>0.2.14-SNAPSHOT</version>
+    <version>0.2.14</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>beangle-ids-cas_2.13</artifactId>
