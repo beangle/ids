@@ -18,14 +18,14 @@
  */
 package org.beangle.ids.cas.web.helper
 
-import java.io.ByteArrayOutputStream
-import java.security.SecureRandom
-
 import com.octo.captcha.service.image.DefaultManageableImageCaptchaService
-import javax.imageio.ImageIO
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.web.util.CookieUtils
+
+import java.io.ByteArrayOutputStream
+import java.security.SecureRandom
+import javax.imageio.ImageIO
 
 class CaptchaHelper {
 
@@ -40,13 +40,10 @@ class CaptchaHelper {
    * 60 length random string,with key as salt
    */
   def generate(request: HttpServletRequest, response: HttpServletResponse): Array[Byte] = {
-    var captchaId = CookieUtils.getCookieValue(request, cookieName)
-    if (null == captchaId) {
-      val buffer = new Array[Byte](25)
-      secureRandom.nextBytes(buffer)
-      captchaId = Hex.encode(buffer)
-      CookieUtils.addCookie(request, response, cookieName, captchaId, -1)
-    }
+    val buffer = new Array[Byte](25)
+    secureRandom.nextBytes(buffer)
+    val captchaId = Hex.encode(buffer)
+    CookieUtils.addCookie(request, response, cookieName, captchaId, -1)
     val challenge = captchaService.getImageChallengeForID(captchaId, request.getLocale)
     val os = new ByteArrayOutputStream()
     ImageIO.write(challenge, "JPEG", os)
@@ -55,15 +52,14 @@ class CaptchaHelper {
 
   def verify(request: HttpServletRequest, response: HttpServletResponse): Boolean = {
     val captchaId = CookieUtils.getCookieValue(request, cookieName)
+    CookieUtils.deleteCookieByName(request, response, cookieName)
     if (null == captchaId) {
       false
     } else {
       try {
-        val result = captchaService.validateResponseForID(captchaId, request.getParameter("captcha_response"))
-        if (result) CookieUtils.deleteCookieByName(request, response, cookieName)
-        result
+        captchaService.validateResponseForID(captchaId, request.getParameter("captcha_response"))
       } catch {
-        case e: Throwable => false
+        case _: Throwable => false
       }
     }
 
