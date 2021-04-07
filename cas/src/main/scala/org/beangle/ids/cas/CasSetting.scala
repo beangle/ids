@@ -29,6 +29,8 @@ class CasSetting {
 
   /** 是否登录界面启用验证码 */
   var enableCaptcha: Boolean = _
+  /** 登录界面是否显示Local/Remote选项 */
+  var displayLoginSwitch: Boolean = _
   /** 防止跨站攻击的key，用于加密生成cookie */
   var key: String = _
   /** 本站的源地址 */

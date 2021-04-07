@@ -13,8 +13,8 @@
 
   <properties>
     <beangle.commons.version>5.2.1</beangle.commons.version>
-    <beangle.data.version>5.3.18</beangle.data.version>
-    <beangle.security.version>4.2.24</beangle.security.version>
+    <beangle.data.version>5.3.19</beangle.data.version>
+    <beangle.security.version>4.2.25</beangle.security.version>
     <beangle.webmvc.version>0.3.46</beangle.webmvc.version>
     <beangle.cache.version>0.0.21</beangle.cache.version>
   </properties>
