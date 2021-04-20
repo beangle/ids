@@ -260,7 +260,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   def captcha: View = {
     if (setting.enableCaptcha) {
-      Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha")
+      Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha",None)
     } else {
       Status(404)
     }
