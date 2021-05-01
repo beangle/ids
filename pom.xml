@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.beangle</groupId>
     <artifactId>beangle-scala</artifactId>
-    <version>28.1</version>
+    <version>28.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.beangle.ids</groupId>
@@ -12,11 +12,11 @@
   <version>0.2.18-SNAPSHOT</version>
 
   <properties>
-    <beangle.commons.version>5.2.1</beangle.commons.version>
-    <beangle.data.version>5.3.19</beangle.data.version>
-    <beangle.security.version>4.2.25</beangle.security.version>
+    <beangle.commons.version>5.2.2-SNAPSHOT</beangle.commons.version>
+    <beangle.data.version>5.3.21-SNAPSHOT</beangle.data.version>
+    <beangle.security.version>4.2.26-SNAPSHOT</beangle.security.version>
     <beangle.webmvc.version>0.4.0-SNAPSHOT</beangle.webmvc.version>
-    <beangle.cache.version>0.0.21</beangle.cache.version>
+    <beangle.cache.version>0.0.22-SNAPSHOT</beangle.cache.version>
   </properties>
 
   <modules>
