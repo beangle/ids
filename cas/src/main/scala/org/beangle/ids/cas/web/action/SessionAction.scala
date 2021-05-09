@@ -18,20 +18,20 @@
  */
 package org.beangle.ids.cas.web.action
 
-import java.time.Instant
-
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.webmvc.api.action.ActionSupport
 import org.beangle.webmvc.api.annotation.{mapping, response}
 import org.beangle.webmvc.api.context.ActionContext
 import org.beangle.webmvc.api.view.{Status, View}
 
+import java.time.Instant
+
 class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
 
   @response
   @mapping("{id}")
   def index(id: String): Any = {
-    secuirtyManager.registry.get(id) match {
+    secuirtyManager.registry.get(id,false) match {
       case Some(s) => s
       case None => notfound(id)
     }
@@ -47,7 +47,7 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   @response
   @mapping("{id}/expire")
   def expire(id: String): View = {
-    secuirtyManager.registry.get(id) match {
+    secuirtyManager.registry.get(id, true) match {
       case Some(s) =>
         val msg =
           if (s.expired) {
@@ -66,7 +66,7 @@ class SessionAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
   @mapping("{id}/access")
   def access(id: String): View = {
     val registry = secuirtyManager.registry
-    registry.get(id) match {
+    registry.get(id,false) match {
       case Some(s) =>
         val accessAt = get("time") match {
           case Some(time) => Instant.ofEpochSecond(time.toLong)
