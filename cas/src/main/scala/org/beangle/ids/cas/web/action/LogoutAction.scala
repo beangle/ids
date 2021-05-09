@@ -40,7 +40,7 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
   @mapping(value = "")
   def index(): View = {
     //remove remote cas redirect hint(if possiable).
-    CookieUtils.deleteCookieByName(request,response,"CAS_service")
+    CookieUtils.deleteCookieByName(request, response, "CAS_service")
     Securities.session match {
       case Some(session) =>
         val isRemote = session.principal.asInstanceOf[DefaultAccount].isRemote
