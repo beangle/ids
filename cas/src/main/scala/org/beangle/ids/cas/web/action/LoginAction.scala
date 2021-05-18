@@ -214,7 +214,6 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     forward()
   }
 
-
   private def forwardService(service: String, session: Session): View = {
     if (null == service) {
       redirect("success", null)
