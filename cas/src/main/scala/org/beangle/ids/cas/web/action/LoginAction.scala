@@ -109,6 +109,8 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                 val token = new UsernamePasswordToken(username, password)
                 try {
                   val req = request
+                  if (setting.passwordReadOnly) token.addDetail("credentialReadOnly", true)
+
                   val session = secuirtyManager.login(req, response, token)
                   SecurityContext.set(securityContextBuilder.build(req, Some(session)))
                   if (isService) {
