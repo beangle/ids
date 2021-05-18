@@ -45,4 +45,6 @@ class CasSetting {
   var remoteLoginUrl: Option[String] = None
   /** 其他SSO退出地址 */
   var remoteLogoutUrl: Option[String] = None
+  /** 本地密码是否是只读 */
+  var passwordReadOnly: Boolean = _
 }

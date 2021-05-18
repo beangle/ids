@@ -18,8 +18,6 @@
  */
 package org.beangle.ids.cas.web.action
 
-import java.io.ByteArrayInputStream
-
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
@@ -40,6 +38,8 @@ import org.beangle.security.web.{EntryPoint, WebSecurityManager}
 import org.beangle.webmvc.api.action.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.api.annotation.{ignore, mapping, param}
 import org.beangle.webmvc.api.view.{Status, Stream, View}
+
+import java.io.ByteArrayInputStream
 
 /**
  * @author chaostone
@@ -75,7 +75,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       case None =>
         val u = get("username")
         val p = get("password")
-        if (Strings.isBlank(u.orNull)  || Strings.isBlank(p.orNull)) {
+        if (Strings.isBlank(u.orNull) || Strings.isBlank(p.orNull)) {
           //remote cas single sign out
           get("logoutRequest") foreach { d =>
             if (Securities.session.isDefined) {
@@ -114,22 +114,26 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                   if (isService) {
                     forwardService(service, session)
                   } else {
-                    var credentialOk = true
-                    var msg = ""
-                    if (setting.checkPasswordStrength) {
-                      credentialOk = PasswordStrengthChecker.check(password, passwordPolicyProvider.getPolicy)
-                      msg = "检测到弱密码，请修改"
-                    }
-                    if (credentialOk) {
-                      credentialStore.getAge(username) foreach { age =>
-                        credentialOk = !age.expired
-                        msg = s"密码已经过期，请修改"
-                      }
-                    }
-                    if (!credentialOk) {
-                      redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), msg)
-                    } else {
+                    if (setting.passwordReadOnly) {
                       forwardService(service, session)
+                    } else {
+                      var credentialOk = true
+                      var msg = ""
+                      if (setting.checkPasswordStrength) {
+                        credentialOk = PasswordStrengthChecker.check(password, passwordPolicyProvider.getPolicy)
+                        msg = "检测到弱密码，请修改"
+                      }
+                      if (credentialOk) {
+                        credentialStore.getAge(username) foreach { age =>
+                          credentialOk = !age.expired
+                          msg = s"密码已经过期，请修改"
+                        }
+                      }
+                      if (!credentialOk) {
+                        redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), msg)
+                      } else {
+                        forwardService(service, session)
+                      }
                     }
                   }
                 } catch {
@@ -162,6 +166,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   /** 记录密码实效的次数
+   *
    * @param princial 账户
    */
   def rememberFailue(princial: String): Unit = {
@@ -260,7 +265,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   def captcha: View = {
     if (setting.enableCaptcha) {
-      Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha",None)
+      Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha")
     } else {
       Status(404)
     }
