@@ -69,6 +69,14 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
 
   @mapping(value = "")
   def index(@param(value = "service", required = false) service: String): View = {
+    //remote cas single sign out
+    get("logoutRequest") foreach { d =>
+      if (Securities.session.isDefined) {
+        return redirect(to(classOf[LogoutAction], "index"), null)
+      } else {
+        return null
+      }
+    }
     Securities.session match {
       case Some(session) =>
         forwardService(service, session)
@@ -76,14 +84,6 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
         val u = get("username")
         val p = get("password")
         if (Strings.isBlank(u.orNull) || Strings.isBlank(p.orNull)) {
-          //remote cas single sign out
-          get("logoutRequest") foreach { d =>
-            if (Securities.session.isDefined) {
-              return redirect(to(classOf[LogoutAction], "index"), null)
-            } else {
-              return null
-            }
-          }
           toLoginForm(request, service)
         } else {
           //username and password are provided.
