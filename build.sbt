@@ -2,7 +2,7 @@ import org.beangle.parent.Dependencies._
 import org.beangle.parent.Settings._
 
 ThisBuild / organization := "org.beangle.ids"
-ThisBuild / version := "0.2.25-SNAPSHOT"
+ThisBuild / version := "0.2.25"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -26,9 +26,8 @@ ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 val beangle_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.3.26"
 val beangle_cache_redis = "org.beangle.cache" %% "beangle-cache-redis" % "0.0.25"
 val beangle_security_web = "org.beangle.security" %% "beangle-security-web" % "4.2.32"
-val beangle_mvc_freemarker = "org.beangle.webmvc" %% "beangle-webmvc-freemarker" % "0.4.7"
+val beangle_mvc_freemarker = "org.beangle.webmvc" %% "beangle-webmvc-freemarker" % "0.4.8"
 
-val jcaptcha ="com.octo.captcha" % "jcaptcha" % "1.0" exclude("javax.servlet", "servlet-api")
 val commonDeps = Seq(logback_classic, logback_core, scalatest,beangle_data_jdbc, beangle_cache_redis,beangle_security_web)
 
 lazy val root = (project in file("."))
@@ -47,7 +46,7 @@ lazy val web = (project in file("web"))
     name := "beangle-ids-web",
     common,
     libraryDependencies ++= commonDeps ,
-    libraryDependencies ++= Seq(jcaptcha,beangle_mvc_freemarker)
+    libraryDependencies ++= Seq(beangle_mvc_freemarker)
   ).dependsOn(cas)
 
 publish / skip := true

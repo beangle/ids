@@ -17,20 +17,19 @@
 
 package org.beangle.ids.cas.web.helper
 
-import com.octo.captcha.service.image.DefaultManageableImageCaptchaService
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
+import org.beangle.commons.lang.Strings
+import org.beangle.commons.net.http.HttpUtils
 import org.beangle.web.servlet.util.CookieUtils
 
 import java.io.ByteArrayOutputStream
 import java.security.SecureRandom
-import javax.imageio.ImageIO
 
-class CaptchaHelper {
+class CaptchaHelper(val captchaBaseUrl: String) {
 
-  var captchaService = new DefaultManageableImageCaptchaService
-  captchaService.setCaptchaEngine(new GmailEngine)
-  captchaService.setMinGuarantedStorageDelayInSeconds(600)
+  val imageUrlPattern = s"${captchaBaseUrl}/captcha/image/{id}.jpg"
+  val verifyUrlPattern = s"${captchaBaseUrl}/captcha/validate/{id}?response={response}"
 
   val secureRandom = new SecureRandom()
   val cookieName = "CAPTCHA_ID"
@@ -38,15 +37,12 @@ class CaptchaHelper {
   /**
    * 60 length random string,with key as salt
    */
-  def generate(request: HttpServletRequest, response: HttpServletResponse): Array[Byte] = {
+  def generateCaptchaUrl(request: HttpServletRequest, response: HttpServletResponse): String = {
     val buffer = new Array[Byte](25)
     secureRandom.nextBytes(buffer)
     val captchaId = Hex.encode(buffer)
     CookieUtils.addCookie(request, response, cookieName, captchaId, -1)
-    val challenge = captchaService.getImageChallengeForID(captchaId, request.getLocale)
-    val os = new ByteArrayOutputStream()
-    ImageIO.write(challenge, "JPEG", os)
-    os.toByteArray
+    Strings.replace(imageUrlPattern, "{id}", captchaId)
   }
 
   def verify(request: HttpServletRequest, response: HttpServletResponse): Boolean = {
@@ -56,11 +52,13 @@ class CaptchaHelper {
       false
     } else {
       try {
-        captchaService.validateResponseForID(captchaId, request.getParameter("captcha_response"))
+        var verifyUrl = Strings.replace(verifyUrlPattern, "{id}", captchaId)
+        verifyUrl = Strings.replace(verifyUrl, "{response}", request.getParameter("captcha_response"))
+        val rs = HttpUtils.getText(verifyUrl)
+        rs.isOk && rs.getText.contains("success")
       } catch {
         case _: Throwable => false
       }
     }
-
   }
 }
