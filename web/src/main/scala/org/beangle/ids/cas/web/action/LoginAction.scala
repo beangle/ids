@@ -196,6 +196,9 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
           } else {
             csrfDefender.addToken(req, response)
             put("setting", setting)
+            if (setting.enableCaptcha) {
+              put("captcha_url", captchaHelper.generateCaptchaUrl(request, response))
+            }
             put("current_timestamp", System.currentTimeMillis)
             forward("index")
           }
@@ -260,14 +263,6 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
       serverName.substring(0, 16)
     } else {
       Strings.rightPad(serverName, 16, '0')
-    }
-  }
-
-  def captcha: View = {
-    if (setting.enableCaptcha) {
-      Stream(new ByteArrayInputStream(captchaHelper.generate(request, response)), "image/jpeg", "captcha")
-    } else {
-      Status(404)
     }
   }
 
