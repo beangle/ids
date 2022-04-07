@@ -2,7 +2,7 @@ import org.beangle.parent.Dependencies._
 import org.beangle.parent.Settings._
 
 ThisBuild / organization := "org.beangle.ids"
-ThisBuild / version := "0.2.26-SNAPSHOT"
+ThisBuild / version := "0.2.26"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle IDS Library"
 ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 
-val beangle_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.3.26"
-val beangle_cache_redis = "org.beangle.cache" %% "beangle-cache-redis" % "0.0.25"
-val beangle_security_web = "org.beangle.security" %% "beangle-security-web" % "4.2.32"
-val beangle_mvc_freemarker = "org.beangle.webmvc" %% "beangle-webmvc-freemarker" % "0.4.8"
+val beangle_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.3.28"
+val beangle_cache_redis = "org.beangle.cache" %% "beangle-cache-redis" % "0.0.26"
+val beangle_security_web = "org.beangle.security" %% "beangle-security-web" % "4.2.33"
+val beangle_mvc_freemarker = "org.beangle.webmvc" %% "beangle-webmvc-freemarker" % "0.4.9"
 
 val commonDeps = Seq(logback_classic, logback_core, scalatest,beangle_data_jdbc, beangle_cache_redis,beangle_security_web)
 
