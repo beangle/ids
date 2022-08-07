@@ -26,7 +26,7 @@ ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 val b_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.4.6"
 val b_cache_redis = "org.beangle.cache" %% "beangle-cache-redis" % "0.0.27"
 val b_security_web = "org.beangle.security" %% "beangle-security-web" % "4.2.35"
-val b_web_action = "org.beangle.web" %% "beangle-web-action" % "0.0.7"
+val b_web_action = "org.beangle.web" %% "beangle-web-action" % "0.1.0"
 
 val commonDeps = Seq(logback_classic % "test", logback_core % "test", scalatest,b_data_jdbc, b_cache_redis,b_security_web)
 
