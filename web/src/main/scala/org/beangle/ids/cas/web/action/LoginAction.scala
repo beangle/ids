@@ -213,7 +213,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
     }
   }
 
-  def success: View = {
+  def success(): View = {
     put("logined", Securities.session.isDefined)
     forward()
   }
