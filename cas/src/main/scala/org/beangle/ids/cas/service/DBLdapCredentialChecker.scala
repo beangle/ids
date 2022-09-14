@@ -27,22 +27,29 @@ class DBLdapCredentialChecker extends CredentialChecker {
 
   override def check(principal: Any, credential: Any): Boolean = {
     dbStore.getPassword(principal) match {
-      case None => false
+      case None =>
+        ldapStore match {
+          case Some(ldap) => validateByLdap(ldap, principal, credential.toString, None)
+          case None => false
+        }
       case Some(dbpwd) =>
         ldapStore match {
-          case Some(ldap) =>
-            ldap.getPassword(principal) match {
-              case Some(p) =>
-                val ldapCorrect = DefaultPasswordEncoder.verify(p, credential.toString)
-                if (ldapCorrect && p != dbpwd) {
-                  dbStore.updatePassword(principal, p)
-                }
-                ldapCorrect
-              case None =>
-                DefaultPasswordEncoder.verify(dbpwd, credential.toString)
-            }
-          case None =>
-            DefaultPasswordEncoder.verify(dbpwd, credential.toString)
+          case Some(ldap) => validateByLdap(ldap, principal, credential.toString, Some(dbpwd))
+          case None => DefaultPasswordEncoder.verify(dbpwd, credential.toString)
+        }
+    }
+  }
+
+  def validateByLdap(ldap: LdapCredentialStore, principal: Any, credential: String, dbpass: Option[String]): Boolean = {
+    ldap.getPassword(principal) match {
+      case Some(p) =>
+        val ldapCorrect = DefaultPasswordEncoder.verify(p, credential)
+        if ldapCorrect && p != dbpass.getOrElse(p + ".") then dbStore.updatePassword(principal, p)
+        ldapCorrect
+      case None =>
+        dbpass match {
+          case None => false
+          case Some(dbpwd) => DefaultPasswordEncoder.verify(dbpwd, credential)
         }
     }
   }
