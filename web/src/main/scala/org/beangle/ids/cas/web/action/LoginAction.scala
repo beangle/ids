@@ -21,22 +21,22 @@ import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.{Numbers, Strings}
-import org.beangle.web.servlet.url.UrlBuilder
-import org.beangle.web.servlet.util.{CookieUtils, RequestUtils}
 import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.service.{CasService, UsernameValidator}
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, SessionHelper}
 import org.beangle.security.Securities
-import org.beangle.security.authc._
+import org.beangle.security.authc.*
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.security.web.{EntryPoint, WebSecurityManager}
-import org.beangle.web.action.support.{ActionSupport, ServletSupport}
 import org.beangle.web.action.annotation.{ignore, mapping, param}
+import org.beangle.web.action.support.{ActionSupport, ServletSupport}
 import org.beangle.web.action.view.{Status, Stream, View}
+import org.beangle.web.servlet.url.UrlBuilder
+import org.beangle.web.servlet.util.{CookieUtils, RequestUtils}
 
 import java.io.ByteArrayInputStream
 
@@ -69,12 +69,10 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   @mapping(value = "")
   def index(@param(value = "service", required = false) service: String): View = {
     //remote cas single sign out
-    get("logoutRequest") foreach { d =>
-      if (Securities.session.isDefined) {
-        return redirect(to(classOf[LogoutAction], "index"), null)
-      } else {
-        return null
-      }
+    get("logoutRequest") match {
+      case None =>
+      case Some(d) =>
+        return if Securities.session.isDefined then redirect(to(classOf[LogoutAction], "index"), null) else null
     }
     Securities.session match {
       case Some(session) =>
