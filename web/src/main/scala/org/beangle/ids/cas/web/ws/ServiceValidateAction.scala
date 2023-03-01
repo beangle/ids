@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.beangle.ids.cas.web.action
+package org.beangle.ids.cas.web.ws
 
 import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.service.CasService
 import org.beangle.ids.cas.ticket.{Result, TicketRegistry}
-import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.annotation.{action, mapping, param}
+import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.View
 
 /**

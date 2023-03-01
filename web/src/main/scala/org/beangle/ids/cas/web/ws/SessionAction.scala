@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.beangle.ids.cas.web.action
+package org.beangle.ids.cas.web.ws
 
 import org.beangle.security.web.WebSecurityManager
-import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.annotation.{mapping, response}
 import org.beangle.web.action.context.ActionContext
+import org.beangle.web.action.support.ActionSupport
 import org.beangle.web.action.view.{Status, View}
 
 import java.time.Instant
