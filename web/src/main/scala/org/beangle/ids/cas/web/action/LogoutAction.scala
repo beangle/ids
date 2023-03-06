@@ -28,6 +28,8 @@ import org.beangle.web.action.support.{ActionSupport, ServletSupport}
 import org.beangle.web.action.annotation.mapping
 import org.beangle.web.action.view.View
 
+import java.net.URLEncoder
+
 /**
  * @author chaostone
  */
@@ -50,7 +52,9 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
           case None =>
             secuirtyManager.logout(request, response, session)
             get("service") match {
-              case Some(service) => redirect(to(service), null)
+              case Some(service) =>
+                if isRemote then redirect(to(casSetting.remoteLogoutUrl.get + "?service=" + URLEncoder.encode(service, "UTF-8")), null)
+                else redirect(to(service), null)
               case None => toLogin(request, isRemote)
             }
         }

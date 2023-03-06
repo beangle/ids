@@ -8,17 +8,12 @@
     <meta http-equiv="content-style-type" content="text/css"/>
     <meta http-equiv="content-script-type" content="text/javascript"/>
     <meta http-equiv="expires" content="0"/>
+    <meta http-equiv="refresh" content="1; URL=${b.base}/logout[#if Parameters['service']??]?service=${Parameters['service']}[/#if]" />
   </head>
   <body>
     正在退出业务系统...
     [#list services  as service]
       <iframe src="${service}[#if service?contains('?')]&[#else]?[/#if]logoutRequest=1" style="width:1px;height:1px;display:none"></iframe>
     [/#list]
-    <script>
-      setTimeout(logout,700);
-      function logout(){
-         document.location="${base}/logout[#if Parameters['service']??]?service=${Parameters['service']}[/#if]"
-      }
-    </script>
   </body>
 </html>
