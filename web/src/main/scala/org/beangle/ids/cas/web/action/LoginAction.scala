@@ -24,7 +24,7 @@ import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.service.{CasService, UsernameValidator}
 import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, SessionHelper}
+import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, LoginHelper, SessionHelper}
 import org.beangle.security.Securities
 import org.beangle.security.authc.*
 import org.beangle.security.context.SecurityContext
@@ -34,16 +34,14 @@ import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.security.web.{EntryPoint, WebSecurityManager}
 import org.beangle.web.action.annotation.{ignore, mapping, param}
 import org.beangle.web.action.support.{ActionSupport, ServletSupport}
-import org.beangle.web.action.view.{Status, Stream, View}
+import org.beangle.web.action.view.{Status, View}
 import org.beangle.web.servlet.url.UrlBuilder
 import org.beangle.web.servlet.util.{CookieUtils, RequestUtils}
-
-import java.io.ByteArrayInputStream
 
 /**
  * @author chaostone
  */
-class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
+class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketRegistry)
   extends ActionSupport with ServletSupport with Initializing {
 
   private var csrfDefender: CsrfDefender = _
@@ -108,7 +106,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
                   val req = request
                   if (setting.passwordReadOnly) token.addDetail("credentialReadOnly", true)
 
-                  val session = secuirtyManager.login(req, response, token)
+                  val session = securityManager.login(req, response, token)
                   SecurityContext.set(securityContextBuilder.build(req, Some(session)))
                   if (isService) {
                     forwardService(service, session)
@@ -217,34 +215,7 @@ class LoginAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketReg
   }
 
   private def forwardService(service: String, session: Session): View = {
-    if (null == service) {
-      redirect("success", null)
-    } else {
-      val idPolicy = secuirtyManager.sessionIdPolicy.asInstanceOf[CookieSessionIdPolicy]
-      val isMember = SessionHelper.isMember(request, service, idPolicy)
-      if (isMember) {
-        if (SessionHelper.isSameDomain(request, service, idPolicy)) {
-          redirectService(response, service)
-        } else {
-          if (casService.isValidClient(service)) {
-            val serviceWithSid =
-              service + (if (service.contains("?")) "&" else "?") + idPolicy.name + "=" + session.id
-            redirectService(response, serviceWithSid)
-          } else {
-            response.getWriter.write("Invalid client")
-            Status.Forbidden
-          }
-        }
-      } else {
-        if (casService.isValidClient(service)) {
-          val ticket = ticketRegistry.generate(session, service)
-          redirectService(response, service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket)
-        } else {
-          response.getWriter.write("Invalid client")
-          Status.Forbidden
-        }
-      }
-    }
+    new LoginHelper(securityManager, ticketRegistry, casService).forwardService(request, response, this, service, session)
   }
 
   private def redirectService(response: HttpServletResponse, service: String): View = {
