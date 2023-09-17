@@ -25,7 +25,6 @@ import scala.collection.mutable
  *
  */
 class CasSetting {
-
   /** 是否登录界面启用验证码 */
   var enableCaptcha: Boolean = _
   /** 登录界面是否显示Local/Remote选项 */
@@ -46,4 +45,6 @@ class CasSetting {
   var remoteLogoutUrl: Option[String] = None
   /** 本地密码是否是只读 */
   var passwordReadOnly: Boolean = _
+  /** 是否启用短信验证码登录 */
+  var enableSmsLogin: Boolean = _
 }
