@@ -2,7 +2,7 @@ import org.beangle.parent.Dependencies.*
 import org.beangle.parent.Settings.*
 
 ThisBuild / organization := "org.beangle.ids"
-ThisBuild / version := "0.3.12"
+ThisBuild / version := "0.3.13"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -23,13 +23,14 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle IDS Library"
 ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 
-val b_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.7.0"
+val b_common_core = "org.beangle.commons" %% "beangle-commons-core" % "5.6.5"
+val b_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.7.7"
 val b_cache_redis = "org.beangle.cache" %% "beangle-cache-redis" % "0.1.5"
-val b_security_web = "org.beangle.security" %% "beangle-security-web" % "4.3.11"
-val b_web_action = "org.beangle.web" %% "beangle-web-action" % "0.4.6"
+val b_security_web = "org.beangle.security" %% "beangle-security-web" % "4.3.13"
+val b_web_action = "org.beangle.web" %% "beangle-web-action" % "0.4.7"
 val b_notify = "org.beangle.notify" %% "beangle-notify-core" % "0.1.2"
 
-val commonDeps = Seq(logback_classic % "test", logback_core % "test", scalatest, b_data_jdbc, b_cache_redis, b_security_web)
+val commonDeps = Seq(logback_classic % "test", logback_core % "test", scalatest, b_common_core, b_data_jdbc, b_cache_redis, b_security_web)
 
 lazy val root = (project in file("."))
   .settings()
