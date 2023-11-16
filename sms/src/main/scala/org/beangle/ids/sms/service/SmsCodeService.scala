@@ -23,5 +23,7 @@ trait SmsCodeService {
 
   def send(receiver: Receiver): String
 
-  def verify(mobile:String,code:String):Boolean
+  def verify(mobile: String, code: String): Boolean
+
+  def validate(mobile: String): Boolean
 }
