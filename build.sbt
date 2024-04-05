@@ -1,8 +1,9 @@
 import org.beangle.parent.Dependencies.*
 import org.beangle.parent.Settings.*
+import sbt.Keys.libraryDependencies
 
 ThisBuild / organization := "org.beangle.ids"
-ThisBuild / version := "0.3.16-SNAPSHOT"
+ThisBuild / version := "0.3.16"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -23,38 +24,19 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle IDS Library"
 ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 
-val b_common_core = "org.beangle.commons" %% "beangle-commons-core" % "5.6.10"
-val b_data_jdbc = "org.beangle.data" %% "beangle-data-jdbc" % "5.8.0"
-val b_cache_redis = "org.beangle.cache" %% "beangle-cache-redis" % "0.1.7"
-val b_security_web = "org.beangle.security" %% "beangle-security-web" % "4.3.16"
-val b_web_action = "org.beangle.web" %% "beangle-web-action" % "0.4.10"
-val b_notify = "org.beangle.notify" %% "beangle-notify-core" % "0.1.4"
+val b_common = "org.beangle.commons" % "beangle-commons" % "5.6.15"
+val b_jdbc = "org.beangle.jdbc" % "beangle-jdbc" % "1.0.0"
+val b_cache = "org.beangle.cache" % "beangle-cache" % "0.1.8"
+val b_security = "org.beangle.security" % "beangle-security" % "4.3.19"
+val b_web = "org.beangle.web" % "beangle-web" % "0.4.11"
+val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.5"
 
-val commonDeps = Seq(logback_classic % "test", logback_core % "test", scalatest, b_common_core, b_data_jdbc, b_cache_redis, b_security_web)
+val commonDeps = Seq(logback_classic % "test", logback_core % "test", scalatest, b_common, b_jdbc, b_cache, b_security)
 
 lazy val root = (project in file("."))
-  .settings()
-  .aggregate(cas, sms, web)
-
-lazy val cas = (project in file("cas"))
   .settings(
     name := "beangle-ids-cas",
     common,
-    libraryDependencies ++= commonDeps
-  )
-lazy val sms = (project in file("sms"))
-  .settings(
-    name := "beangle-ids-sms",
-    common,
     libraryDependencies ++= commonDeps,
-    libraryDependencies ++= Seq(b_notify)
+    libraryDependencies ++= Seq(b_notify, b_web, jedis)
   )
-lazy val web = (project in file("web"))
-  .settings(
-    name := "beangle-ids-web",
-    common,
-    libraryDependencies ++= commonDeps,
-    libraryDependencies ++= Seq(b_web_action)
-  ).dependsOn(cas)
-
-publish / skip := true

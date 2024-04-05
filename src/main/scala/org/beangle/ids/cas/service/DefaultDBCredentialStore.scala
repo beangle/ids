@@ -20,7 +20,7 @@ package org.beangle.ids.cas.service
 import java.time.{Instant, LocalDate}
 
 import javax.sql.DataSource
-import org.beangle.data.jdbc.query.JdbcExecutor
+import org.beangle.jdbc.query.JdbcExecutor
 import org.beangle.security.authc.{CredentialAge, DBCredentialStore, Principals}
 
 class DefaultDBCredentialStore(dataSource: DataSource) extends DBCredentialStore {
