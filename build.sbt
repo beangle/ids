@@ -31,12 +31,10 @@ val b_security = "org.beangle.security" % "beangle-security" % "4.3.19"
 val b_web = "org.beangle.web" % "beangle-web" % "0.4.11"
 val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.5"
 
-val commonDeps = Seq(logback_classic % "test", logback_core % "test", scalatest, b_common, b_jdbc, b_cache, b_security)
-
 lazy val root = (project in file("."))
   .settings(
-    name := "beangle-ids-cas",
+    name := "beangle-ids",
     common,
-    libraryDependencies ++= commonDeps,
+    libraryDependencies ++=  Seq(logback_classic % "test", scalatest, b_common, b_jdbc, b_cache, b_security),
     libraryDependencies ++= Seq(b_notify, b_web, jedis)
   )
