@@ -19,12 +19,12 @@ package org.beangle.ids.cas.web.helper
 
 import java.net.URL
 import java.security.SecureRandom
-
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.logging.Logging
+import org.beangle.commons.net.Networks
 import org.beangle.web.servlet.util.CookieUtils
 
 /**
@@ -41,7 +41,7 @@ class CsrfDefender(key: String, target: URL) extends Logging {
   val secureRandom = new SecureRandom()
 
   def this(key: String, origin: String) = {
-    this(key, new URL(origin))
+    this(key, Networks.url(origin))
   }
 
   def validSource(req: HttpServletRequest): Boolean = {
@@ -55,7 +55,7 @@ class CsrfDefender(key: String, target: URL) extends Logging {
 
     //Compare the source against the expected target origin
     try {
-      val sourceURL = new URL(source)
+      val sourceURL = Networks.url(source)
       if (!target.getProtocol.equals(sourceURL.getProtocol)
         || !target.getHost.equals(sourceURL.getHost)
         || target.getPort != sourceURL.getPort) {
