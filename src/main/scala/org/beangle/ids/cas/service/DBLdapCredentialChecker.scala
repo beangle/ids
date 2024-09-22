@@ -41,11 +41,17 @@ class DBLdapCredentialChecker extends CredentialChecker {
   }
 
   def validateByLdap(ldap: LdapCredentialStore, principal: Any, credential: String, dbpass: Option[String]): Boolean = {
-    ldap.getPassword(principal) match {
-      case Some(p) =>
-        val ldapCorrect = DefaultPasswordEncoder.verify(p, credential)
-        if ldapCorrect && p != dbpass.getOrElse(p + ".") then dbStore.updatePassword(principal, p)
-        ldapCorrect
+    ldap.getActivePassword(principal) match {
+      case Some(ps) =>
+        if (ps._2) {
+          val p = ps._1
+          val ldapCorrect = DefaultPasswordEncoder.verify(p, credential)
+          if ldapCorrect && p != dbpass.getOrElse(p + ".") then dbStore.updatePassword(principal, p)
+          ldapCorrect
+        } else {
+          println(s"${principal} is in active")
+          false
+        }
       case None =>
         dbpass match {
           case None => false
