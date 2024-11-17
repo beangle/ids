@@ -24,9 +24,9 @@ import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.Securities
 import org.beangle.security.authc.DefaultAccount
 import org.beangle.security.web.WebSecurityManager
-import org.beangle.web.action.support.{ActionSupport, ServletSupport}
-import org.beangle.web.action.annotation.mapping
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
+import org.beangle.webmvc.annotation.mapping
+import org.beangle.webmvc.view.View
 
 import java.net.URLEncoder
 

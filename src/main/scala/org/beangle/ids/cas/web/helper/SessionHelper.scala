@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.beangle.commons.lang.Strings
 import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.security.web.session.{CookieSessionIdPolicy, SessionIdReader}
-import org.beangle.web.action.context.Params
+import org.beangle.webmvc.context.Params
 
 object SessionHelper {
 

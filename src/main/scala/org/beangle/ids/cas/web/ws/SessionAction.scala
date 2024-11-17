@@ -18,10 +18,10 @@
 package org.beangle.ids.cas.web.ws
 
 import org.beangle.security.web.WebSecurityManager
-import org.beangle.web.action.annotation.{mapping, response}
-import org.beangle.web.action.context.ActionContext
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.{Status, View}
+import org.beangle.webmvc.annotation.{mapping, response}
+import org.beangle.webmvc.context.ActionContext
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.{Status, View}
 
 import java.time.Instant
 

@@ -32,9 +32,9 @@ import org.beangle.security.session.Session
 import org.beangle.security.web.access.SecurityContextBuilder
 import org.beangle.security.web.session.CookieSessionIdPolicy
 import org.beangle.security.web.{EntryPoint, WebSecurityManager}
-import org.beangle.web.action.annotation.{ignore, mapping, param}
-import org.beangle.web.action.support.{ActionSupport, ServletSupport}
-import org.beangle.web.action.view.{Status, View}
+import org.beangle.webmvc.annotation.{ignore, mapping, param}
+import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
+import org.beangle.webmvc.view.{Status, View}
 import org.beangle.web.servlet.url.UrlBuilder
 import org.beangle.web.servlet.util.{CookieUtils, RequestUtils}
 

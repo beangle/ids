@@ -23,8 +23,8 @@ import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.session.Session
 import org.beangle.security.web.WebSecurityManager
 import org.beangle.security.web.session.CookieSessionIdPolicy
-import org.beangle.web.action.ToClass
-import org.beangle.web.action.view.{RedirectActionView, Status, View}
+import org.beangle.webmvc.ToClass
+import org.beangle.webmvc.view.{RedirectActionView, Status, View}
 
 class LoginHelper(securityManager: WebSecurityManager, ticketRegistry: TicketRegistry, casService: CasService) {
 

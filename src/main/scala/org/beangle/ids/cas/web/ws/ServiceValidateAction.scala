@@ -20,9 +20,9 @@ package org.beangle.ids.cas.web.ws
 import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.service.CasService
 import org.beangle.ids.cas.ticket.{Result, TicketRegistry}
-import org.beangle.web.action.annotation.{action, mapping, param}
-import org.beangle.web.action.support.ActionSupport
-import org.beangle.web.action.view.View
+import org.beangle.webmvc.annotation.{action, mapping, param}
+import org.beangle.webmvc.support.ActionSupport
+import org.beangle.webmvc.view.View
 
 /**
  * @author chaostone

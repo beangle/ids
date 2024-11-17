@@ -17,7 +17,7 @@
 
 package org.beangle.ids.cas.ticket
 
-import org.beangle.cache.Cache
+import org.beangle.commons.cache.Cache
 import org.beangle.ids.cas.service.Services
 
 trait TicketCacheService {

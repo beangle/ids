@@ -17,7 +17,7 @@
 
 package org.beangle.ids.sms.service.impl
 
-import org.beangle.cache.Cache
+import org.beangle.commons.cache.Cache
 import org.beangle.cache.redis.RedisCacheManager
 import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.ids.sms.service.SmsCacheService
