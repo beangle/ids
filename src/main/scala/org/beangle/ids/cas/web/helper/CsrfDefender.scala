@@ -17,8 +17,6 @@
 
 package org.beangle.ids.cas.web.helper
 
-import java.net.URL
-import java.security.SecureRandom
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
@@ -26,6 +24,9 @@ import org.beangle.commons.lang.Strings
 import org.beangle.commons.logging.Logging
 import org.beangle.commons.net.Networks
 import org.beangle.web.servlet.util.CookieUtils
+
+import java.net.URL
+import java.security.SecureRandom
 
 /**
  *
@@ -44,12 +45,12 @@ class CsrfDefender(key: String, target: URL) extends Logging {
     this(key, Networks.url(origin))
   }
 
-  def validSource(req: HttpServletRequest): Boolean = {
+  def validSource(req: HttpServletRequest): (Boolean, String) = {
     var source = req.getHeader("Origin")
     if (Strings.isBlank(source)) {
       source = req.getHeader("Referer")
       if (Strings.isBlank(source)) {
-        return false
+        return (false, "Empty Origin or Referer header")
       }
     }
 
@@ -59,14 +60,14 @@ class CsrfDefender(key: String, target: URL) extends Logging {
       if (!target.getProtocol.equals(sourceURL.getProtocol)
         || !target.getHost.equals(sourceURL.getHost)
         || target.getPort != sourceURL.getPort) {
-        false
+        (false, s"${source} doesnot match ${target}")
       } else {
-        true
+        (true, "")
       }
     } catch {
       case e: Throwable =>
         logger.error(s"error source:$source for ${e.getMessage}")
-        false
+        (false, e.getMessage)
     }
   }
 
@@ -75,7 +76,8 @@ class CsrfDefender(key: String, target: URL) extends Logging {
       res.sendError(HttpServletResponse.SC_FORBIDDEN, "Only Support Http post method.")
       return false
     }
-    if (validSource(req)) {
+    val rs = validSource(req)
+    if (rs._1) {
       val token = CookieUtils.getCookieValue(req, tokenName)
       if (Strings.isEmpty(token) || !valid(token)) {
         res.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRFToken is absent or invalid.")

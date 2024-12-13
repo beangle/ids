@@ -97,7 +97,7 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
                 put("error", "非法用户名")
                 toLoginForm(request, service)
               } else if (loginRetryService.isOverMaxTries(username)) {
-                put("error", "密码错误次数过多，请与15分钟再次尝试。")
+                put("error", "密码错误次数过多，请15分钟后再次尝试。")
                 toLoginForm(request, service)
               } else {
                 var password = p.get
@@ -144,7 +144,7 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
                       if (fc < loginRetryService.maxAuthTries) {
                         msg += s",剩余${loginRetryService.maxAuthTries - fc}次机会"
                       } else {
-                        msg += ",密码错误次数过多，请与15分钟再次尝试。"
+                        msg += ",密码错误次数过多，请15分钟后再次尝试。"
                       }
                     }
                     put("error", msg)

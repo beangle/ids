@@ -77,7 +77,7 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
               if (UsernameValidator.illegal(userName)) {
                 toLogin("非法用户名")
               } else if (loginRetryService.isOverMaxTries(userName)) {
-                toLogin("密码错误次数过多，暂停登录，请与15分钟再次尝试。")
+                toLogin("错误次数过多，请15分钟后再次尝试。")
               } else {
                 userMobileProvider.get(userName) match
                   case None => toLogin("该用户未绑定手机。")
@@ -92,7 +92,7 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
                       val msg = if (fc < loginRetryService.maxAuthTries) {
                         s"验证码错误,剩余${loginRetryService.maxAuthTries - fc}次机会"
                       } else {
-                        "错误次数过多，暂停登录,请15分钟后再次尝试。"
+                        "错误次数过多，请15分钟后再次尝试。"
                       }
                       toLogin(msg)
                     }
@@ -137,7 +137,9 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
     if (setting.enableCaptcha) {
       put("captcha_url", captchaHelper.generateCaptchaUrl(request, response))
     }
+    put("setting", setting)
     put("current_timestamp", System.currentTimeMillis)
+    csrfDefender.addToken(request, response)
     forward("index")
   }
 }
