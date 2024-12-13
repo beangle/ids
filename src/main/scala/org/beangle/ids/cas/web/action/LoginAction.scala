@@ -18,25 +18,26 @@
 package org.beangle.ids.cas.web.action
 
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
+import jdk.internal.agent.resources.agent
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
-import org.beangle.commons.lang.{Numbers, Strings}
+import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.CasSetting
-import org.beangle.ids.cas.service.{CasService, UsernameValidator}
+import org.beangle.ids.cas.service.{CasService, LoginRetryService, UsernameValidator}
 import org.beangle.ids.cas.ticket.TicketRegistry
-import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, LoginHelper, SessionHelper}
+import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, LoginHelper}
 import org.beangle.security.Securities
 import org.beangle.security.authc.*
 import org.beangle.security.context.SecurityContext
 import org.beangle.security.session.Session
 import org.beangle.security.web.access.SecurityContextBuilder
-import org.beangle.security.web.session.CookieSessionIdPolicy
+import org.beangle.security.web.authc.WebClient
 import org.beangle.security.web.{EntryPoint, WebSecurityManager}
+import org.beangle.web.servlet.url.UrlBuilder
+import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.webmvc.annotation.{ignore, mapping, param}
 import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.{Status, View}
-import org.beangle.web.servlet.url.UrlBuilder
-import org.beangle.web.servlet.util.{CookieUtils, RequestUtils}
 
 /**
  * @author chaostone
@@ -59,6 +60,8 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
   var credentialStore: DBCredentialStore = _
 
   var securityContextBuilder: SecurityContextBuilder = _
+
+  var loginRetryService: LoginRetryService = _
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(setting.key, setting.origin)
@@ -93,8 +96,8 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
               if (UsernameValidator.illegal(username)) {
                 put("error", "非法用户名")
                 toLoginForm(request, service)
-              } else if (overMaxFailure(username)) {
-                put("error", "密码错误三次以上，暂停登录")
+              } else if (loginRetryService.isOverMaxTries(username)) {
+                put("error", "密码错误次数过多，暂停登录，请与15分钟再次尝试。")
                 toLoginForm(request, service)
               } else {
                 var password = p.get
@@ -135,11 +138,16 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
                   }
                 } catch {
                   case e: AuthenticationException =>
-                    val msg = casService.getMesage(e)
-                    put("error", msg)
+                    var msg = casService.getMesage(e)
                     if (e.isInstanceOf[BadCredentialException]) {
-                      rememberFailue(username)
+                      val fc = loginRetryService.incFailCount(username, WebClient.get(request))
+                      if (fc < loginRetryService.maxAuthTries) {
+                        msg += s",剩余${loginRetryService.maxAuthTries - fc}次机会"
+                      } else {
+                        msg += ",密码错误次数过多，暂停登录，请与15分钟再次尝试。"
+                      }
                     }
+                    put("error", msg)
                     toLoginForm(request, service)
                 }
               }
@@ -149,31 +157,6 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
           }
         }
     }
-  }
-
-  /** 密码错误次数是否3次以上 */
-  def overMaxFailure(princial: String): Boolean = {
-    val p = princial.replace("@", "_")
-    val c = CookieUtils.getCookieValue(request, "failure_" + p)
-    var failure = 0
-    if (Strings.isNotBlank(c)) {
-      failure = Numbers.toInt(c)
-    }
-    failure >= 3
-  }
-
-  /** 记录密码实效的次数
-   *
-   * @param princial 账户
-   */
-  def rememberFailue(princial: String): Unit = {
-    val p = princial.replace("@", "_")
-    val c = CookieUtils.getCookieValue(request, "failure_" + p)
-    var failure = 1
-    if (Strings.isNotBlank(c)) {
-      failure = Numbers.toInt(c) + 1
-    }
-    CookieUtils.addCookie(request, response, "failure_" + p, failure.toString, 5 * 60)
   }
 
   @ignore
