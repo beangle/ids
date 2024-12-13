@@ -26,7 +26,7 @@ import redis.clients.jedis.JedisPool
 
 class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
 
-  private[this] var failCounts: Cache[String, Int] = _
+  private[this] var failCounts: Cache[String, String] = _
 
   //密码错误次数是否3次以上
   var maxAuthTries: Int = 3
@@ -35,7 +35,7 @@ class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
     this()
     val cacheManager = new RedisCacheManager(pool, DefaultBinarySerializer, true)
     cacheManager.ttl = 15 * 60 //15minutes
-    failCounts = cacheManager.getCache("login_failcount", classOf[String], classOf[Int])
+    failCounts = cacheManager.getCache("login_failcount", classOf[String], classOf[String])
   }
 
   override def isOverMaxTries(principal: String): Boolean = {
@@ -43,17 +43,17 @@ class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
   }
 
   override def getFailCount(principal: String): Int = {
-    failCounts.get(principal).getOrElse(0)
+    failCounts.get(principal).getOrElse("0").toInt
   }
 
   override def incFailCount(principal: String, agent: Session.Agent): Int = {
     failCounts.get(principal) match
       case None =>
-        failCounts.put(principal, 1)
+        failCounts.put(principal, "1")
         1
       case Some(fc) =>
-        val nfc = fc + 1
-        failCounts.put(principal, nfc)
+        val nfc = fc.toInt + 1
+        failCounts.put(principal, String.valueOf(nfc))
         if (nfc >= maxAuthTries) {
           publish(new OverTryLoginEvent(principal, nfc, agent))
         }
