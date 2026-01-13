@@ -17,23 +17,23 @@
 
 package org.beangle.ids.cas.ticket
 
-import org.beangle.commons.cache.Cache
 import org.beangle.cache.redis.RedisCacheManager
+import org.beangle.commons.cache.Cache
 import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.ids.cas.service.Services
-import redis.clients.jedis.JedisPool
+import redis.clients.jedis.RedisClient
 
 class DefaultTicketCacheService extends TicketCacheService {
 
   private[this] var tickets: Cache[String, DefaultServiceTicket] = _
   private[this] var services: Cache[String, Services] = _
 
-  def this(pool: JedisPool) = {
+  def this(client: RedisClient) = {
     this()
     DefaultBinarySerializer.registerClass(classOf[Services])
     DefaultBinarySerializer.registerClass(classOf[DefaultServiceTicket])
 
-    val cacheManager = new RedisCacheManager(pool, DefaultBinarySerializer, true)
+    val cacheManager = new RedisCacheManager(client, DefaultBinarySerializer, true)
     cacheManager.ttl = 60
     tickets = cacheManager.getCache("cas_tickets", classOf[String], classOf[DefaultServiceTicket])
     cacheManager.ttl = 6 * 60 * 60 //six hour

@@ -21,11 +21,11 @@ import org.beangle.commons.cache.Cache
 import org.beangle.cache.redis.RedisCacheManager
 import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.ids.sms.service.SmsCacheService
-import redis.clients.jedis.JedisPool
+import redis.clients.jedis.RedisClient
 
-class DefaultSmsCacheService(pool: JedisPool) extends SmsCacheService {
+class DefaultSmsCacheService(client: RedisClient) extends SmsCacheService {
   var ttl: Int = 5 * 60
-  var verifyCodes = buildCache(pool)
+  var verifyCodes = buildCache(client)
 
   override def get(mobile: String): Option[String] = {
     verifyCodes.get(mobile)
@@ -41,8 +41,8 @@ class DefaultSmsCacheService(pool: JedisPool) extends SmsCacheService {
 
   override def ttlMinutes: Int = ttl / 60
 
-  private def buildCache(pool: JedisPool): Cache[String, String] = {
-    val cacheManager = new RedisCacheManager(pool, DefaultBinarySerializer, true)
+  private def buildCache(client: RedisClient): Cache[String, String] = {
+    val cacheManager = new RedisCacheManager(client, DefaultBinarySerializer, true)
     cacheManager.ttl = ttl
     cacheManager.getCache("cas_sms", classOf[String], classOf[String])
   }

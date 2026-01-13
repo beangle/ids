@@ -22,7 +22,7 @@ import org.beangle.commons.cache.Cache
 import org.beangle.commons.event.EventPublisher
 import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.security.session.{OverTryLoginEvent, Session}
-import redis.clients.jedis.JedisPool
+import redis.clients.jedis.RedisClient
 
 class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
 
@@ -31,9 +31,9 @@ class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
   //密码错误次数是否3次以上
   var maxAuthTries: Int = 3
 
-  def this(pool: JedisPool) = {
+  def this(client: RedisClient) = {
     this()
-    val cacheManager = new RedisCacheManager(pool, DefaultBinarySerializer, true)
+    val cacheManager = new RedisCacheManager(client, DefaultBinarySerializer, true)
     cacheManager.ttl = 15 * 60 //15minutes
     failCounts = cacheManager.getCache("login_failcount", classOf[String], classOf[String])
   }
