@@ -54,7 +54,7 @@ class CaptchaHelper(val captchaBaseUrl: String) {
       try {
         var verifyUrl = Strings.replace(verifyUrlPattern, "{id}", captchaId)
         verifyUrl = Strings.replace(verifyUrl, "{response}", request.getParameter("captcha_response"))
-        val rs = HttpUtils.getText(verifyUrl)
+        val rs = HttpUtils.get(verifyUrl)
         rs.isOk && rs.getText.contains("success")
       } catch {
         case _: Throwable => false
