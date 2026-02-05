@@ -17,16 +17,13 @@
 
 package org.beangle.ids.cas.id.impl
 
-import org.beangle.commons.logging.Logging
-import org.beangle.ids.cas.id.IdGenerator
-import org.beangle.ids.cas.id.RandomStringGenerator
-import org.beangle.ids.cas.id.NumericGenerator
+import org.beangle.ids.cas.id.{IdGenerator, NumericGenerator, RandomStringGenerator}
 
 /**
  * @author chaostone
  */
 class DefaultIdGenerator(numericGenerator: NumericGenerator, randomStringGenerator: RandomStringGenerator, prefix: String)
-    extends IdGenerator with Logging {
+  extends IdGenerator {
 
   private val id = new scala.util.Random(System.currentTimeMillis).nextInt(1000000)
 

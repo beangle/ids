@@ -21,8 +21,8 @@ import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
 import org.beangle.commons.lang.Strings
-import org.beangle.commons.logging.Logging
 import org.beangle.commons.net.Networks
+import org.beangle.ids.IdsLogger
 import org.beangle.web.servlet.util.CookieUtils
 
 import java.net.URL
@@ -35,7 +35,7 @@ import java.security.SecureRandom
  * @see "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie"
  * @see "https://chloe.re/2016/04/13/goodbye-csrf-samesite-to-the-rescue/"
  */
-class CsrfDefender(key: String, target: URL) extends Logging {
+class CsrfDefender(key: String, target: URL) {
 
   var tokenName = "CSRF_TOKEN"
 
@@ -66,7 +66,7 @@ class CsrfDefender(key: String, target: URL) extends Logging {
       }
     } catch {
       case e: Throwable =>
-        logger.error(s"error source:$source for ${e.getMessage}")
+        IdsLogger.error(s"error source:$source for ${e.getMessage}")
         (false, e.getMessage)
     }
   }

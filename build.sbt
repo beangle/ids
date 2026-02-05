@@ -24,12 +24,12 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle IDS Library"
 ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 
-val b_common = "org.beangle.commons" % "beangle-commons" % "5.8.1"
-val b_jdbc = "org.beangle.jdbc" % "beangle-jdbc" % "1.1.6"
-val b_cache = "org.beangle.cache" % "beangle-cache" % "0.1.18"
-val b_security = "org.beangle.security" % "beangle-security" % "4.4.5"
-val b_web = "org.beangle.webmvc" % "beangle-webmvc" % "0.13.0"
-val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.18"
+val b_common = "org.beangle.commons" % "beangle-commons" % "6.0.0-SNAPSHOT"
+val b_jdbc = "org.beangle.jdbc" % "beangle-jdbc" % "1.1.7-SNAPSHOT"
+val b_cache = "org.beangle.cache" % "beangle-cache" % "0.1.19-SNAPSHOT"
+val b_security = "org.beangle.security" % "beangle-security" % "4.4.6-SNAPSHOT"
+val b_web = "org.beangle.webmvc" % "beangle-webmvc" % "0.13.2-SNAPSHOT"
+val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.19-SNAPSHOT"
 
 lazy val root = (project in file("."))
   .settings(
