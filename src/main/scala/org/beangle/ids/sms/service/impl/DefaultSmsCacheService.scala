@@ -25,7 +25,7 @@ import redis.clients.jedis.RedisClient
 
 class DefaultSmsCacheService(client: RedisClient) extends SmsCacheService {
   var ttl: Int = 5 * 60
-  var verifyCodes = buildCache(client)
+  private val verifyCodes = buildCache(client)
 
   override def get(mobile: String): Option[String] = {
     verifyCodes.get(mobile)
