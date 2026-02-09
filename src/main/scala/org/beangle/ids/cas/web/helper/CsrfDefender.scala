@@ -22,7 +22,7 @@ import org.beangle.commons.codec.binary.Hex
 import org.beangle.commons.codec.digest.Digests
 import org.beangle.commons.lang.Strings
 import org.beangle.commons.net.Networks
-import org.beangle.ids.IdsLogger
+import org.beangle.ids.Logger
 import org.beangle.web.servlet.util.CookieUtils
 
 import java.net.URL
@@ -66,7 +66,7 @@ class CsrfDefender(key: String, target: URL) {
       }
     } catch {
       case e: Throwable =>
-        IdsLogger.error(s"error source:$source for ${e.getMessage}")
+        Logger.error(s"error source:$source for ${e.getMessage}")
         (false, e.getMessage)
     }
   }

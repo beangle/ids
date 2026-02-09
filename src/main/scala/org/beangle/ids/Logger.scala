@@ -19,4 +19,4 @@ package org.beangle.ids
 
 import org.beangle.commons.logging.{Logger, slf4j}
 
-object IdsLogger extends Logger(slf4j("org.beangle.ids"))
+private[ids] object Logger extends Logger(slf4j("org.beangle.ids"))

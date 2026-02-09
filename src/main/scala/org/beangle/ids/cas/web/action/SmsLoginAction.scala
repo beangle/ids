@@ -24,8 +24,7 @@ import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.service.{CasService, LoginRetryService, UserMobileProvider, UsernameValidator}
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, LoginHelper}
-import org.beangle.ids.sms.service.SmsCodeService
-import org.beangle.notify.sms.Receiver
+import org.beangle.notify.sms.{Receiver, SmsCodeService}
 import org.beangle.security.Securities
 import org.beangle.security.authc.PreauthToken
 import org.beangle.security.context.SecurityContext
