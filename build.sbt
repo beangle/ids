@@ -3,7 +3,7 @@ import org.beangle.parent.Settings.*
 import sbt.Keys.libraryDependencies
 
 ThisBuild / organization := "org.beangle.ids"
-ThisBuild / version := "0.4.8-SNAPSHOT"
+ThisBuild / version := "0.4.8"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -24,11 +24,11 @@ ThisBuild / developers := List(
 ThisBuild / description := "The Beangle IDS Library"
 ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 
-val b_common = "org.beangle.commons" % "beangle-commons" % "6.0.4"
+val b_common = "org.beangle.commons" % "beangle-commons" % "6.0.6"
 val b_jdbc = "org.beangle.jdbc" % "beangle-jdbc" % "1.1.8"
 val b_cache = "org.beangle.cache" % "beangle-cache" % "0.1.19"
-val b_security = "org.beangle.security" % "beangle-security" % "4.4.6"
-val b_web = "org.beangle.webmvc" % "beangle-webmvc" % "0.13.3"
+val b_security = "org.beangle.security" % "beangle-security" % "4.4.7"
+val b_web = "org.beangle.webmvc" % "beangle-webmvc" % "0.14.0"
 val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.20"
 
 lazy val root = (project in file("."))
