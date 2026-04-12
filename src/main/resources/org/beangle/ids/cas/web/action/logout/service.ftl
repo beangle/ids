@@ -8,7 +8,7 @@
     <meta http-equiv="content-style-type" content="text/css"/>
     <meta http-equiv="content-script-type" content="text/javascript"/>
     <meta http-equiv="expires" content="0"/>
-    <meta http-equiv="refresh" content="1; URL=${b.base}/logout[#if Parameters['service']??]?service=${Parameters['service']}[/#if]" />
+    <meta http-equiv="refresh" content="1; URL=${b.base}/cas/logout[#if Parameters['service']??]?service=${Parameters['service']}[/#if]" />
   </head>
   <body>
     正在退出业务系统...
