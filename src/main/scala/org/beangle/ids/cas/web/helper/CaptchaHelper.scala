@@ -23,26 +23,27 @@ import org.beangle.commons.lang.Strings
 import org.beangle.commons.net.http.HttpUtils
 import org.beangle.web.servlet.util.CookieUtils
 
-import java.io.ByteArrayOutputStream
 import java.security.SecureRandom
 
 class CaptchaHelper(val captchaBaseUrl: String) {
 
   val imageUrlPattern = s"${captchaBaseUrl}/captcha/image/{id}.jpg"
-  val verifyUrlPattern = s"${captchaBaseUrl}/captcha/validate/{id}?response={response}"
+  val checkUrlPattern = s"${captchaBaseUrl}/captcha/validate/{id}.json?response={response}"
+  val verifyUrlPattern = s"${captchaBaseUrl}/captcha/validate/{id}.json?response={response}&destroy=1"
 
   val secureRandom = new SecureRandom()
   val cookieName = "CAPTCHA_ID"
 
   /**
    * 60 length random string,with key as salt
+   * @return imageurl and checkurl
    */
-  def generateCaptchaUrl(request: HttpServletRequest, response: HttpServletResponse): String = {
+  def generateCaptchaUrl(request: HttpServletRequest, response: HttpServletResponse): (String, String) = {
     val buffer = new Array[Byte](25)
     secureRandom.nextBytes(buffer)
     val captchaId = Hex.encode(buffer)
     CookieUtils.addCookie(request, response, cookieName, captchaId, -1)
-    Strings.replace(imageUrlPattern, "{id}", captchaId)
+    (Strings.replace(imageUrlPattern, "{id}", captchaId), Strings.replace(checkUrlPattern, "{id}", captchaId))
   }
 
   def verify(request: HttpServletRequest, response: HttpServletResponse): Boolean = {

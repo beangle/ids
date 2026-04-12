@@ -134,7 +134,9 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
   private def toLogin(msg: String): View = {
     if (Strings.isNotBlank(msg)) put("error", msg)
     if (setting.enableCaptcha) {
-      put("captcha_url", captchaHelper.generateCaptchaUrl(request, response))
+      val urls = captchaHelper.generateCaptchaUrl(request, response)
+      put("captcha_url", urls._1)
+      put("captcha_check_url", urls._2)
     }
     put("setting", setting)
     put("current_timestamp", System.currentTimeMillis)

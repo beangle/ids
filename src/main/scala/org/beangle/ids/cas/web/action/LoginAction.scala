@@ -18,7 +18,6 @@
 package org.beangle.ids.cas.web.action
 
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
-import jdk.internal.agent.resources.agent
 import org.beangle.commons.bean.Initializing
 import org.beangle.commons.codec.binary.Aes
 import org.beangle.commons.lang.Strings
@@ -43,7 +42,7 @@ import org.beangle.webmvc.view.{Status, View}
  * @author chaostone
  */
 class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketRegistry)
-  extends ActionSupport , ServletSupport , Initializing {
+  extends ActionSupport, ServletSupport, Initializing {
 
   private var csrfDefender: CsrfDefender = _
 
@@ -176,7 +175,9 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
             csrfDefender.addToken(req, response)
             put("setting", setting)
             if (setting.enableCaptcha) {
-              put("captcha_url", captchaHelper.generateCaptchaUrl(request, response))
+              val urls = captchaHelper.generateCaptchaUrl(request, response)
+              put("captcha_url", urls._1)
+              put("captcha_check_url", urls._2)
             }
             put("current_timestamp", System.currentTimeMillis)
             forward("index")
