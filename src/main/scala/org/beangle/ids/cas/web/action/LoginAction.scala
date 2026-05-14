@@ -129,7 +129,8 @@ class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketReg
                         }
                       }
                       if (!credentialOk) {
-                        redirect(to("/edit", if (Strings.isNotBlank(service)) "service=" + service else ""), msg)
+                        val params = if (Strings.isNotBlank(service)) Map("service" -> service) else Map.empty[String, String]
+                        redirect(to("/cas/edit", params), msg)
                       } else {
                         forwardService(service, session)
                       }

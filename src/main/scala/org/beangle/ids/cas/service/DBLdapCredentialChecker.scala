@@ -49,7 +49,6 @@ class DBLdapCredentialChecker extends CredentialChecker {
           if ldapCorrect && p != dbpass.getOrElse(p + ".") then dbStore.updatePassword(principal, p)
           ldapCorrect
         } else {
-          println(s"${principal} is in active")
           false
         }
       case None =>

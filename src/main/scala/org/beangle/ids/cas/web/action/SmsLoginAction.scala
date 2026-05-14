@@ -89,7 +89,7 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
                     } else {
                       val fc = loginRetryService.incFailCount(userName, WebClient.get(request))
                       val msg = if (fc < loginRetryService.maxAuthTries) {
-                        s"验证码错误,剩余${loginRetryService.maxAuthTries - fc}次机会"
+                        s"手机验证码错误,剩余${loginRetryService.maxAuthTries - fc}次机会"
                       } else {
                         "错误次数过多，请15分钟后再次尝试。"
                       }
