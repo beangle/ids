@@ -81,7 +81,7 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
                 userMobileProvider.get(userName) match
                   case None => toLogin("该用户未绑定手机。")
                   case Some(mi) =>
-                    if (smsCodeService.verify(mi.mobile, smsCode)) {
+                    if (smsCodeService.verify(mi.mobile, smsCode, true)) {
                       val token = PreauthToken(userName, null)
                       val session = securityManager.login(request, response, token)
                       SecurityContext.set(securityContextBuilder.build(request, Some(session)))
