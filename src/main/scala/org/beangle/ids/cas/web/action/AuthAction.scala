@@ -18,6 +18,7 @@
 package org.beangle.ids.cas.web.action
 
 import org.beangle.commons.json.JsonObject
+import org.beangle.commons.lang.Strings
 import org.beangle.security.Securities
 import org.beangle.security.authc.DefaultAccount
 import org.beangle.security.web.WebSecurityManager
@@ -28,7 +29,7 @@ import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.ActionSupport
 import org.beangle.webmvc.view.View
 
-/** 为了前端调用的登陆和推出服务
+/** 为了前端调用的登录和退出服务
  *
  * @param secuirtyManager
  */
@@ -36,18 +37,28 @@ class AuthAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
 
   def login(@param(value = "service", required = false) service: String): View = {
     val rs = new JsonObject()
+    val response = ActionContext.current.response
+    val request = ActionContext.current.request
+    val origin = request.getHeader("origin")
+    if (Strings.isNotBlank(origin)) {
+      response.addHeader("Access-Control-Allow-Origin", origin)
+      response.addHeader("Access-Control-Allow-Credentials", "true")
+    }
     Securities.session match {
       case None =>
-        val req = ActionContext.current.request
-        val builder = UrlBuilder(req)
-        builder.setContextPath(req.getContextPath)
-        builder.setServletPath("/login")
+        val builder = UrlBuilder(request)
+        builder.setContextPath(request.getContextPath)
+        builder.setServletPath("/cas/login")
         if (null != service) {
           builder.setQueryString(UrlBuilder.encodeParams(Map("service" -> service)))
         }
-        redirect(to(builder.buildUrl()))
+        val redirectUrl = builder.buildUrl()
+        rs.add("authenticated", false)
+        rs.add("error", "not_authenticated")
+        rs.add("redirectUrl", redirectUrl)
+        ok(401, rs)
       case Some(session) =>
-        rs.add("success", true)
+        rs.add("authenticated", true)
         rs.add("token", session.id)
         val user = new JsonObject()
         val account = session.principal.asInstanceOf[DefaultAccount]
