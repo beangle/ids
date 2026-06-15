@@ -30,10 +30,11 @@ class DefaultTicketCacheService extends TicketCacheService {
 
   def this(client: RedisClient) = {
     this()
-    DefaultBinarySerializer.registerClass(classOf[Services])
-    DefaultBinarySerializer.registerClass(classOf[DefaultServiceTicket])
+    val serializer = new DefaultBinarySerializer
+    serializer.registerClass(classOf[Services])
+    serializer.registerClass(classOf[DefaultServiceTicket])
 
-    val cacheManager = new RedisCacheManager(client, DefaultBinarySerializer, true)
+    val cacheManager = new RedisCacheManager(client, serializer, true)
     cacheManager.ttl = 60
     tickets = cacheManager.getCache("cas_tickets", classOf[String], classOf[DefaultServiceTicket])
     cacheManager.ttl = 6 * 60 * 60 //six hour

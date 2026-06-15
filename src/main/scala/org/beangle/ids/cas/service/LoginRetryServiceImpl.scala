@@ -33,7 +33,7 @@ class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
 
   def this(client: RedisClient) = {
     this()
-    val cacheManager = new RedisCacheManager(client, DefaultBinarySerializer, true)
+    val cacheManager = new RedisCacheManager(client, new DefaultBinarySerializer, true)
     cacheManager.ttl = 15 * 60 //15minutes
     failCounts = cacheManager.getCache("login_failcount", classOf[String], classOf[String])
   }
