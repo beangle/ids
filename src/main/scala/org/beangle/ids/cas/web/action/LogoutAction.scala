@@ -18,14 +18,13 @@
 package org.beangle.ids.cas.web.action
 
 import jakarta.servlet.http.HttpServletRequest
-import org.beangle.web.servlet.util.CookieUtils
 import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.security.Securities
-import org.beangle.security.authc.DefaultAccount
-import org.beangle.security.web.WebSecurityManager
-import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
+import org.beangle.security.web.{CookieKeys, WebSecurityManager}
+import org.beangle.web.servlet.util.CookieUtils
 import org.beangle.webmvc.annotation.mapping
+import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.View
 
 import java.net.URLEncoder
@@ -42,6 +41,9 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
   def index(): View = {
     //remove remote cas redirect hint(if possiable).
     CookieUtils.deleteCookieByName(request, response, "CAS_service")
+    CookieUtils.deleteCookieByName(request, response, CookieKeys.ProfileIdKey)
+    CookieUtils.deleteCookieByName(request, response, CookieKeys.RunAsKey)
+    CookieUtils.deleteCookieByName(request, response, "beangle.ems.context")
     Securities.session match {
       case Some(session) =>
         val isRemote = session.principal.isRemote
