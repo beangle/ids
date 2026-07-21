@@ -44,7 +44,7 @@ class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRe
     CookieUtils.deleteCookieByName(request, response, "CAS_service")
     Securities.session match {
       case Some(session) =>
-        val isRemote = session.principal.asInstanceOf[DefaultAccount].isRemote
+        val isRemote = session.principal.isRemote
         ticketRegistry.evictServices(session) match {
           case Some(services) =>
             put("services", services.services)

@@ -27,9 +27,9 @@ ThisBuild / homepage := Some(url("https://beangle.github.io/ids/index.html"))
 val b_common = "org.beangle.commons" % "beangle-commons" % "6.2.1"
 val b_jdbc = "org.beangle.jdbc" % "beangle-jdbc" % "1.1.9"
 val b_cache = "org.beangle.cache" % "beangle-cache" % "0.1.20"
-val b_security = "org.beangle.security" % "beangle-security" % "4.4.17"
+val b_security = "org.beangle.security" % "beangle-security" % "4.4.18-SNAPSHOT"
 val b_web = "org.beangle.webmvc" % "beangle-webmvc" % "0.15.0"
-val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.25"
+val b_notify = "org.beangle.notify" % "beangle-notify" % "0.1.26"
 
 lazy val root = (project in file("."))
   .settings(

@@ -24,7 +24,7 @@ import org.beangle.ids.cas.CasSetting
 import org.beangle.ids.cas.service.{CasService, LoginRetryService, UserMobileProvider, UsernameValidator}
 import org.beangle.ids.cas.ticket.TicketRegistry
 import org.beangle.ids.cas.web.helper.{CaptchaHelper, CsrfDefender, LoginHelper}
-import org.beangle.notify.sms.{Receiver, SmsCodeService}
+import org.beangle.notify.sms.{Mobile, SmsCodeService}
 import org.beangle.security.Securities
 import org.beangle.security.authc.PreauthToken
 import org.beangle.security.context.SecurityContext
@@ -110,7 +110,7 @@ class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: Ticket
       case None => "发送失败，该用户未绑定手机。"
       case Some(mi) =>
         if smsCodeService.validate(mi.mobile) then
-          smsCodeService.send(Receiver(mi.mobile, mi.userName))._2
+          smsCodeService.send(Mobile(mi.mobile, mi.userName))._2
         else
           s"手机号码${mi.mobile}不正确"
     response.setCharacterEncoding("utf-8")

@@ -61,7 +61,7 @@ class AuthAction(secuirtyManager: WebSecurityManager) extends ActionSupport {
         rs.add("authenticated", true)
         rs.add("token", session.id)
         val user = new JsonObject()
-        val account = session.principal.asInstanceOf[DefaultAccount]
+        val account = session.principal
         user.add("code", account.name)
         user.add("name", account.description)
         rs.add("user", user)

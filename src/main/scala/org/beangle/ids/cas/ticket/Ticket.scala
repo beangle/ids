@@ -18,8 +18,7 @@
 package org.beangle.ids.cas.ticket
 
 import java.io.{Externalizable, ObjectInput, ObjectOutput}
-
-import org.beangle.security.authc.DefaultAccount
+import org.beangle.security.authc.{Account, DefaultAccount}
 import org.beangle.security.session.Session
 
 /**
@@ -35,13 +34,13 @@ trait ServiceTicket extends Ticket {
 
 class DefaultServiceTicket extends ServiceTicket {
   var sessionId: String = _
-  var principal: DefaultAccount = _
+  var principal: Account = _
   var service: String = _
 
   def this(session: Session, service: String) = {
     this()
     this.sessionId = session.id
-    this.principal = session.principal.asInstanceOf[DefaultAccount]
+    this.principal = session.principal
     this.service = service
   }
 
