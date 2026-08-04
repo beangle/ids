@@ -47,4 +47,8 @@ class CasSetting {
   var passwordReadOnly: Boolean = _
   /** 是否启用短信验证码登录 */
   var enableSmsLogin: Boolean = _
+  /** 是否启用扫码登录 */
+  var enableQrcodeLogin: Boolean = true
+  /** 扫码票据有效期，单位秒 */
+  var qrcodeExpireSeconds: Int = 180
 }
