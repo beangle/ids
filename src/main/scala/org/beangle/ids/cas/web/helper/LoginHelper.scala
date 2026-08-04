@@ -49,13 +49,37 @@ class LoginHelper(securityManager: WebSecurityManager, ticketRegistry: TicketReg
         }
       } else {
         if (casService.isValidClient(service)) {
-          val ticket = ticketRegistry.generate(session, service)
-          redirectService(response, service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket)
+          if (SessionHelper.isSameDomain(request, service, idPolicy) && isInternalPath(request, service)) {
+            // 回跳本站 CAS 内部页面（如扫码确认页登录后回跳）：不签发 ST，直接重定向
+            redirectService(response, service)
+          } else {
+            val ticket = ticketRegistry.generate(session, service)
+            redirectService(response, service + (if (service.contains("?")) "&" else "?") + "ticket=" + ticket)
+          }
         } else {
           response.getWriter.write("Invalid client")
           Status.Forbidden
         }
       }
+    }
+  }
+
+  /** 判断 service 是否指向本站 CAS 内部路径（contextPath + /cas/）。
+   *
+   *  用于登录成功回跳时区分"外部业务应用"与"CAS 自身页面"：
+   *  内部页面无需签发 service ticket（如扫码确认页回跳），避免产生无用 ST。
+   */
+  private def isInternalPath(request: HttpServletRequest, service: String): Boolean = {
+    if (service == null) false
+    else {
+      val path =
+        if (service.contains("://")) {
+          val startIdx = service.indexOf("://") + 3
+          val slashIdx = service.indexOf('/', startIdx)
+          if (slashIdx < 0) "" else service.substring(slashIdx)
+        } else if (service.startsWith("/")) service
+        else ""
+      path.startsWith(request.getContextPath + "/cas/")
     }
   }
 
