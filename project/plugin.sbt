@@ -1,4 +1,3 @@
-addSbtPlugin("org.beangle.parent" % "sbt-beangle-parent" % "0.16.0")
-addSbtPlugin("org.beangle.build" % "sbt-beangle-build" % "0.1.3")
-
+addSbtPlugin("org.beangle.parent" % "sbt-beangle-parent" % "0.16.2")
+addSbtPlugin("org.beangle.build" % "sbt-beangle-build" % "0.1.5")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.7.0")
