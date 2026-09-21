@@ -21,11 +21,12 @@ import org.beangle.commons.lang.Strings
 import org.beangle.ids.cas.CasSetting
 import org.beangle.security.authc._
 import org.beangle.security.session.OvermaxSessionException
+import scala.compiletime.uninitialized
 
 class CasServiceImpl extends CasService {
 
-  var setting: CasSetting = _
-  private val messages: Map[Class[_], String] = Map(
+  var setting: CasSetting = uninitialized
+  private val messages: Map[Class[?], String] = Map(
     classOf[AccountExpiredException] -> "账户过期",
     classOf[UsernameNotFoundException] -> "找不到该用户",
     classOf[BadCredentialException] -> "密码错误",

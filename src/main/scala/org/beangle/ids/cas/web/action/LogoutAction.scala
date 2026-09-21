@@ -28,6 +28,7 @@ import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.View
 
 import java.net.URLEncoder
+import scala.compiletime.uninitialized
 
 /**
  * @author chaostone
@@ -35,7 +36,7 @@ import java.net.URLEncoder
 class LogoutAction(secuirtyManager: WebSecurityManager, ticketRegistry: TicketRegistry)
   extends ActionSupport with ServletSupport {
 
-  var casSetting: CasSetting = _
+  var casSetting: CasSetting = uninitialized
 
   @mapping(value = "")
   def index(): View = {

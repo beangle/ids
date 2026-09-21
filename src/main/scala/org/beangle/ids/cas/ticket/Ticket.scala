@@ -20,6 +20,7 @@ package org.beangle.ids.cas.ticket
 import java.io.{Externalizable, ObjectInput, ObjectOutput}
 import org.beangle.security.authc.{Account, DefaultAccount}
 import org.beangle.security.session.Session
+import scala.compiletime.uninitialized
 
 /**
  * @author chaostone
@@ -33,9 +34,9 @@ trait ServiceTicket extends Ticket {
 }
 
 class DefaultServiceTicket extends ServiceTicket {
-  var sessionId: String = _
-  var principal: Account = _
-  var service: String = _
+  var sessionId: String = uninitialized
+  var principal: Account = uninitialized
+  var service: String = uninitialized
 
   def this(session: Session, service: String) = {
     this()

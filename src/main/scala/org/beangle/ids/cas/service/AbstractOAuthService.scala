@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.{Duration, Instant}
 import java.util.{Base64, UUID}
+import scala.compiletime.uninitialized
 
 /** OAuth2 授权服务抽象实现。
  *
@@ -47,8 +48,8 @@ abstract class AbstractOAuthService extends OAuthService, Initializing {
   /** 令牌签名密钥，由子类提供 */
   protected def secret: String
 
-  private var digest: JwtDigest = _
-  private[this] var codes: Cache[String, String] = _
+  private var digest: JwtDigest = uninitialized
+  private var codes: Cache[String, String] = uninitialized
 
   /** 初始化授权码缓存。
    *  @param client Redis 客户端

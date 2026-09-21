@@ -25,6 +25,7 @@ import org.beangle.webmvc.annotation.param
 import org.beangle.webmvc.context.ActionContext
 import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.View
+import scala.compiletime.uninitialized
 
 /** OAuth2 授权码流程接口。
  *
@@ -32,7 +33,7 @@ import org.beangle.webmvc.view.View
  */
 class OAuthAction extends ActionSupport, ServletSupport {
 
-  var oauthService: OAuthService = _
+  var oauthService: OAuthService = uninitialized
 
   /** GET: 展示授权页面 */
   def authorize(@param("client_id") clientId: String): View = {

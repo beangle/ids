@@ -23,6 +23,7 @@ import org.beangle.ids.cas.service.Services
 import org.beangle.commons.event.EventListener
 import org.beangle.security.session.LogoutEvent
 import org.beangle.commons.event.Event
+import scala.compiletime.uninitialized
 
 /**
  * @author chaostone
@@ -30,7 +31,7 @@ import org.beangle.commons.event.Event
 class DefaultTicketRegistry(cacheService: TicketCacheService)
     extends TicketRegistry with EventListener[LogoutEvent] {
 
-  var serviceTicketIdGenerator: ServiceTicketIdGenerator = _
+  var serviceTicketIdGenerator: ServiceTicketIdGenerator = uninitialized
 
   private val tickets = cacheService.getTicketCache
 
@@ -91,11 +92,11 @@ class DefaultTicketRegistry(cacheService: TicketCacheService)
     services.evict(event.session.id)
   }
 
-  def supportsEventType(eventType: Class[_ <: Event]): Boolean = {
+  def supportsEventType(eventType: Class[? <: Event]): Boolean = {
     classOf[LogoutEvent].isAssignableFrom(eventType)
   }
 
-  override def supportsSourceType(sourceType: Class[_]): Boolean = {
+  override def supportsSourceType(sourceType: Class[?]): Boolean = {
     true
   }
 }

@@ -23,10 +23,11 @@ import org.beangle.commons.event.EventPublisher
 import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.security.session.{OverTryLoginEvent, Session}
 import redis.clients.jedis.RedisClient
+import scala.compiletime.uninitialized
 
 class LoginRetryServiceImpl extends LoginRetryService, EventPublisher {
 
-  private[this] var failCounts: Cache[String, String] = _
+  private var failCounts: Cache[String, String] = uninitialized
 
   //密码错误次数是否3次以上
   var maxAuthTries: Int = 3

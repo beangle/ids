@@ -22,15 +22,16 @@ import java.time.{Instant, LocalDate}
 import javax.sql.DataSource
 import org.beangle.jdbc.query.JdbcExecutor
 import org.beangle.security.authc.{CredentialAge, DBCredentialStore, Principals}
+import scala.compiletime.uninitialized
 
 class DefaultDBCredentialStore(dataSource: DataSource) extends DBCredentialStore {
   private val executor = new JdbcExecutor(dataSource)
 
-  var passwordSql: String = _
+  var passwordSql: String = uninitialized
 
-  var updateSql: String = _
+  var updateSql: String = uninitialized
 
-  var ageSql: String = _
+  var ageSql: String = uninitialized
 
   override def getPassword(principal: Any): Option[String] = {
     val username = Principals.getName(principal)

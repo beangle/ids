@@ -22,11 +22,12 @@ import org.beangle.commons.cache.Cache
 import org.beangle.commons.io.DefaultBinarySerializer
 import org.beangle.ids.cas.service.Services
 import redis.clients.jedis.RedisClient
+import scala.compiletime.uninitialized
 
 class DefaultTicketCacheService extends TicketCacheService {
 
-  private[this] var tickets: Cache[String, DefaultServiceTicket] = _
-  private[this] var services: Cache[String, Services] = _
+  private var tickets: Cache[String, DefaultServiceTicket] = uninitialized
+  private var services: Cache[String, Services] = uninitialized
 
   def this(client: RedisClient) = {
     this()

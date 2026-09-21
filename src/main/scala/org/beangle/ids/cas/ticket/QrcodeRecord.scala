@@ -18,6 +18,7 @@
 package org.beangle.ids.cas.ticket
 
 import java.io.{Externalizable, ObjectInput, ObjectOutput}
+import scala.compiletime.uninitialized
 
 /** 扫码登录二维码记录，全程存放于缓存中，不落数据库。
  *
@@ -26,16 +27,16 @@ import java.io.{Externalizable, ObjectInput, ObjectOutput}
  */
 class QrcodeRecord extends Externalizable {
 
-  var qrcodeId: String = _
-  var secret: String = _
-  var service: String = _
+  var qrcodeId: String = uninitialized
+  var secret: String = uninitialized
+  var service: String = uninitialized
   /** 应用名称，确认页据此识别应用 */
-  var appName: String = _
+  var appName: String = uninitialized
   var status: String = QrcodeRecord.Pending
-  var username: String = _
-  var authToken: String = _
-  var deviceIp: String = _
-  var expireAt: Long = _
+  var username: String = uninitialized
+  var authToken: String = uninitialized
+  var deviceIp: String = uninitialized
+  var expireAt: Long = uninitialized
 
   def writeExternal(out: ObjectOutput): Unit = {
     out.writeObject(qrcodeId)

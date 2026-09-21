@@ -26,6 +26,7 @@ import org.beangle.ids.cas.id.impl.DefaultRandomStringGenerator
 import org.beangle.ids.cas.service.QrcodeService
 import org.beangle.ids.cas.ticket.QrcodeRecord
 import redis.clients.jedis.RedisClient
+import scala.compiletime.uninitialized
 
 /** 基于 Redis 缓存的二维码服务实现。
  *
@@ -35,11 +36,11 @@ import redis.clients.jedis.RedisClient
 class DefaultQrcodeService extends QrcodeService, Initializing {
 
   /** CAS 全局设置，qrcodeExpireSeconds 决定二维码记录的实际存活时长 */
-  var casSetting: CasSetting = _
+  var casSetting: CasSetting = uninitialized
 
-  private[this] var records: Cache[String, QrcodeRecord] = _
+  private var records: Cache[String, QrcodeRecord] = uninitialized
 
-  private var client: RedisClient = _
+  private var client: RedisClient = uninitialized
 
   def this(client: RedisClient) = {
     this()

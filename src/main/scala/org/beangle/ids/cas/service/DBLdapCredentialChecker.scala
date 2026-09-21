@@ -20,9 +20,10 @@ package org.beangle.ids.cas.service
 import org.beangle.security.authc.{CredentialChecker, DBCredentialStore}
 import org.beangle.security.codec.DefaultPasswordEncoder
 import org.beangle.security.realm.ldap.LdapCredentialStore
+import scala.compiletime.uninitialized
 
 class DBLdapCredentialChecker extends CredentialChecker {
-  var dbStore: DBCredentialStore = _
+  var dbStore: DBCredentialStore = uninitialized
   var ldapStore: Option[LdapCredentialStore] = None
 
   override def check(principal: Any, credential: Any): Boolean = {

@@ -37,6 +37,7 @@ import org.beangle.web.servlet.util.RequestUtils
 import org.beangle.webmvc.annotation.{ignore, mapping, param}
 import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.{Status, View}
+import scala.compiletime.uninitialized
 
 /**
  * @author chaostone
@@ -44,23 +45,23 @@ import org.beangle.webmvc.view.{Status, View}
 class LoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketRegistry)
   extends ActionSupport, ServletSupport, Initializing {
 
-  private var csrfDefender: CsrfDefender = _
+  private var csrfDefender: CsrfDefender = uninitialized
 
-  var setting: CasSetting = _
+  var setting: CasSetting = uninitialized
 
-  var captchaHelper: CaptchaHelper = _
+  var captchaHelper: CaptchaHelper = uninitialized
 
-  var casService: CasService = _
+  var casService: CasService = uninitialized
 
-  var entryPoint: EntryPoint = _
+  var entryPoint: EntryPoint = uninitialized
 
-  var passwordPolicyProvider: PasswordPolicyProvider = _
+  var passwordPolicyProvider: PasswordPolicyProvider = uninitialized
 
-  var credentialStore: DBCredentialStore = _
+  var credentialStore: DBCredentialStore = uninitialized
 
-  var securityContextBuilder: SecurityContextBuilder = _
+  var securityContextBuilder: SecurityContextBuilder = uninitialized
 
-  var loginRetryService: LoginRetryService = _
+  var loginRetryService: LoginRetryService = uninitialized
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(setting.key, setting.origin)

@@ -39,6 +39,7 @@ import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.View
 
 import java.io.IOException
+import scala.compiletime.uninitialized
 
 /** 扫码登录。
  *
@@ -49,18 +50,18 @@ class QrcodeAction(securityManager: WebSecurityManager, ticketRegistry: TicketRe
   extends ActionSupport, ServletSupport, Initializing {
 
   /** CAS 全局设置（key/origin 用于 CSRF，clients 用于 service 白名单） */
-  var setting: CasSetting = _
+  var setting: CasSetting = uninitialized
   /** 校验 service 是否在白名单内 */
-  var casService: CasService = _
+  var casService: CasService = uninitialized
   /** 二维码记录存取服务（基于 Redis 缓存） */
-  var qrcodeService: QrcodeService = _
+  var qrcodeService: QrcodeService = uninitialized
   /** 根据 service 解析应用展示信息，解析不到视为非法应用 */
-  var appInfoProvider: CasAppInfoProvider = _
+  var appInfoProvider: CasAppInfoProvider = uninitialized
   /** 设备登录时构建设备自身的安全上下文 */
-  var securityContextBuilder: SecurityContextBuilder = _
+  var securityContextBuilder: SecurityContextBuilder = uninitialized
 
   /** CSRF 防御器，confirm/cancel 等写操作必须通过校验 */
-  private var csrfDefender: CsrfDefender = _
+  private var csrfDefender: CsrfDefender = uninitialized
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(setting.key, setting.origin)

@@ -23,6 +23,7 @@ import org.beangle.ids.cas.ticket.{Result, TicketRegistry}
 import org.beangle.webmvc.annotation.{action, mapping, param}
 import org.beangle.webmvc.support.ActionSupport
 import org.beangle.webmvc.view.View
+import scala.compiletime.uninitialized
 
 /**
  * @author chaostone
@@ -30,7 +31,7 @@ import org.beangle.webmvc.view.View
 @action("serviceValidate")
 class ServiceValidateAction(ticketRegistry: TicketRegistry) extends ActionSupport {
 
-  var casService: CasService = _
+  var casService: CasService = uninitialized
 
   @mapping("")
   def index(@param(value = "service", required = false) service: String, @param(value = "ticket", required = false) ticket: String): View = {

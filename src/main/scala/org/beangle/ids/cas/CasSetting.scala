@@ -20,23 +20,24 @@ package org.beangle.ids.cas
 import org.beangle.commons.collection.Collections
 
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 
 /** Cas 服务设置
  *
  */
 class CasSetting {
   /** 是否登录界面启用验证码 */
-  var enableCaptcha: Boolean = _
+  var enableCaptcha: Boolean = uninitialized
   /** 登录界面是否显示Local/Remote选项 */
-  var displayLoginSwitch: Boolean = _
+  var displayLoginSwitch: Boolean = uninitialized
   /** 防止跨站攻击的key，用于加密生成cookie */
-  var key: String = _
+  var key: String = uninitialized
   /** 本站的源地址 */
-  var origin: String = _
+  var origin: String = uninitialized
   /** 是否强制使用https */
-  var forceHttps: Boolean = _
+  var forceHttps: Boolean = uninitialized
   /** 是否检查密码强度 */
-  var checkPasswordStrength: Boolean = _
+  var checkPasswordStrength: Boolean = uninitialized
   /** 允许的client */
   var clients: mutable.Buffer[String] = Collections.newBuffer[String]
   /** 其他SSO登录地址 */
@@ -44,9 +45,9 @@ class CasSetting {
   /** 其他SSO退出地址 */
   var remoteLogoutUrl: Option[String] = None
   /** 本地密码是否是只读 */
-  var passwordReadOnly: Boolean = _
+  var passwordReadOnly: Boolean = uninitialized
   /** 是否启用短信验证码登录 */
-  var enableSmsLogin: Boolean = _
+  var enableSmsLogin: Boolean = uninitialized
   /** 是否启用扫码登录 */
   var enableQrcodeLogin: Boolean = true
   /** 扫码票据有效期，单位秒 */

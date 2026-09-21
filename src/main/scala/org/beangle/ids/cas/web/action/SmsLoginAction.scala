@@ -35,25 +35,26 @@ import org.beangle.security.web.authc.WebClient
 import org.beangle.webmvc.annotation.{mapping, param}
 import org.beangle.webmvc.support.{ActionSupport, ServletSupport}
 import org.beangle.webmvc.view.View
+import scala.compiletime.uninitialized
 
 class SmsLoginAction(securityManager: WebSecurityManager, ticketRegistry: TicketRegistry)
   extends ActionSupport, ServletSupport, Initializing {
 
-  private var csrfDefender: CsrfDefender = _
+  private var csrfDefender: CsrfDefender = uninitialized
 
-  var casService: CasService = _
+  var casService: CasService = uninitialized
 
-  var userMobileProvider: UserMobileProvider = _
+  var userMobileProvider: UserMobileProvider = uninitialized
 
-  var captchaHelper: CaptchaHelper = _
+  var captchaHelper: CaptchaHelper = uninitialized
 
-  var smsCodeService: SmsCodeService = _
+  var smsCodeService: SmsCodeService = uninitialized
 
-  var securityContextBuilder: SecurityContextBuilder = _
+  var securityContextBuilder: SecurityContextBuilder = uninitialized
 
-  var setting: CasSetting = _
+  var setting: CasSetting = uninitialized
 
-  var loginRetryService: LoginRetryService = _
+  var loginRetryService: LoginRetryService = uninitialized
 
   override def init(): Unit = {
     csrfDefender = new CsrfDefender(setting.key, setting.origin)
